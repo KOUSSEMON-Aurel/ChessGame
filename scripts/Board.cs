@@ -10,6 +10,9 @@ public class Board {
     public int halfmoveClock = 0;
     public int fullmoveNumber = 1;
 
+    public ulong currentKey = 0;
+    public List<ulong> history = new List<ulong>();
+
     // Stack to undo moves
     private Stack<UndoInfo> undoStack = new Stack<UndoInfo>();
 
@@ -20,6 +23,7 @@ public class Board {
         public int prevEnPassant;
         public int prevHalfmove;
         public int prevFullmove;
+        public ulong prevKey;
     }
 
     public Board() {
@@ -34,6 +38,8 @@ public class Board {
         sideToMove = PieceColor.White;
         halfmoveClock = 0;
         fullmoveNumber = 1;
+        currentKey = 0;
+        history.Clear();
     }
 
     public void SetInitialPosition() {
@@ -58,6 +64,10 @@ public class Board {
         // Kings
         Set(4, new Piece(PieceType.King, PieceColor.White));
         Set(60, new Piece(PieceType.King, PieceColor.Black));
+
+        // Initialize Zobrist Key
+        currentKey = GenerateZobristKey();
+        history.Add(currentKey);
     }
 
     // Helper
@@ -174,13 +184,7 @@ public class Board {
                 int to = from + dir * dist;
                 if (!IsInBoard(to)) break;
                 
-                // Check wrapping
-                int toRank = to / 8;
-                int toFile = to % 8;
-                // Simple wrapping check: if we moved more than 1 file/rank per step, something is wrong (unless diagonal)
-                // Better: check if we crossed board edge based on direction
-                // For simplicity in 1D array, we need careful boundary checks.
-                // Let's use coordinate logic for safety:
+                // Wrapping check
                 int currentRank = (from + dir * (dist-1)) / 8;
                 int currentFile = (from + dir * (dist-1)) % 8;
                 int nextRank = to / 8;
@@ -216,12 +220,44 @@ public class Board {
                 moves.Add(new Move(from, to));
             }
         }
-        // Castling (TODO: Add checks for attacked squares)
+        
+        // Castling
+        // Cannot castle if in check
+        if (IsSquareAttacked(from, p.Color == PieceColor.White ? PieceColor.Black : PieceColor.White)) return;
+
+        if (p.Color == PieceColor.White) {
+            // King Side (e1 -> g1)
+            if (whiteCanCastleKingSide && Get(5).IsNone && Get(6).IsNone) {
+                if (!IsSquareAttacked(5, PieceColor.Black) && !IsSquareAttacked(6, PieceColor.Black)) {
+                    moves.Add(new Move(from, 6) { isCastling = true });
+                }
+            }
+            // Queen Side (e1 -> c1)
+            if (whiteCanCastleQueenSide && Get(3).IsNone && Get(2).IsNone && Get(1).IsNone) {
+                if (!IsSquareAttacked(3, PieceColor.Black) && !IsSquareAttacked(2, PieceColor.Black)) {
+                    moves.Add(new Move(from, 2) { isCastling = true });
+                }
+            }
+        } else {
+            // Black King Side (e8 -> g8)
+            if (blackCanCastleKingSide && Get(61).IsNone && Get(62).IsNone) {
+                if (!IsSquareAttacked(61, PieceColor.White) && !IsSquareAttacked(62, PieceColor.White)) {
+                    moves.Add(new Move(from, 62) { isCastling = true });
+                }
+            }
+            // Black Queen Side (e8 -> c8)
+            if (blackCanCastleQueenSide && Get(59).IsNone && Get(58).IsNone && Get(57).IsNone) {
+                if (!IsSquareAttacked(59, PieceColor.White) && !IsSquareAttacked(58, PieceColor.White)) {
+                    moves.Add(new Move(from, 58) { isCastling = true });
+                }
+            }
+        }
     }
 
     public Piece ApplyMove(Move m) {
         Piece moved = Get(m.from);
         Piece captured = Get(m.to);
+        
         // push undo
         UndoInfo u = new UndoInfo {
             move = m,
@@ -232,9 +268,19 @@ public class Board {
             prevBlackCastleQ = blackCanCastleQueenSide,
             prevEnPassant = enPassantSquare,
             prevHalfmove = halfmoveClock,
-            prevFullmove = fullmoveNumber
+            prevFullmove = fullmoveNumber,
+            prevKey = currentKey
         };
         undoStack.Push(u);
+
+        // --- UPDATE ZOBRIST FOR REMOVED PIECES ---
+        // Remove moved piece from source
+        currentKey ^= Zobrist.pieces[m.from, Zobrist.GetPieceIndex(moved)];
+        
+        // Remove captured piece from target (if any)
+        if (!captured.IsNone) {
+            currentKey ^= Zobrist.pieces[m.to, Zobrist.GetPieceIndex(captured)];
+        }
 
         // Update halfmove clock
         if (moved.Type == PieceType.Pawn || !captured.IsNone) halfmoveClock = 0; else halfmoveClock++;
@@ -242,43 +288,107 @@ public class Board {
         // Handle en passant capture
         if (m.isEnPassant) {
             int capIdx = (sideToMove == PieceColor.White) ? (m.to - 8) : (m.to + 8);
-            captured = Get(capIdx);
+            Piece epCaptured = Get(capIdx);
             Set(capIdx, new Piece(PieceType.None, PieceColor.White));
+            // Remove EP captured piece from Zobrist
+            currentKey ^= Zobrist.pieces[capIdx, Zobrist.GetPieceIndex(epCaptured)];
         }
 
         // Move piece
         Set(m.to, moved);
         Set(m.from, new Piece(PieceType.None, PieceColor.White));
+        
+        // Add moved piece to target
+        currentKey ^= Zobrist.pieces[m.to, Zobrist.GetPieceIndex(moved)];
 
         // Handle promotion
         if (m.promotion != PieceType.None) {
-            Set(m.to, new Piece(m.promotion, moved.Color));
+            // Remove pawn from target
+            currentKey ^= Zobrist.pieces[m.to, Zobrist.GetPieceIndex(moved)];
+            // Add promoted piece
+            Piece promoPiece = new Piece(m.promotion, moved.Color);
+            Set(m.to, promoPiece);
+            currentKey ^= Zobrist.pieces[m.to, Zobrist.GetPieceIndex(promoPiece)];
         }
 
-        // Handle castling
+        // Handle castling move of rook
         if (m.isCastling) {
             if (m.to % 8 == 6) { // king-side
                 int rookFrom = m.to + 1;
                 int rookTo = m.to - 1;
-                Set(rookTo, Get(rookFrom));
+                Piece rook = Get(rookFrom);
+                Set(rookTo, rook);
                 Set(rookFrom, new Piece(PieceType.None, PieceColor.White));
+                
+                // Update Zobrist for Rook
+                currentKey ^= Zobrist.pieces[rookFrom, Zobrist.GetPieceIndex(rook)];
+                currentKey ^= Zobrist.pieces[rookTo, Zobrist.GetPieceIndex(rook)];
+                
             } else if (m.to % 8 == 2) { // queen-side
                 int rookFrom = m.to - 2;
                 int rookTo = m.to + 1;
-                Set(rookTo, Get(rookFrom));
+                Piece rook = Get(rookFrom);
+                Set(rookTo, rook);
                 Set(rookFrom, new Piece(PieceType.None, PieceColor.White));
+                
+                // Update Zobrist for Rook
+                currentKey ^= Zobrist.pieces[rookFrom, Zobrist.GetPieceIndex(rook)];
+                currentKey ^= Zobrist.pieces[rookTo, Zobrist.GetPieceIndex(rook)];
             }
         }
 
+        // Update castling rights
+        // Remove old castling rights from key
+        currentKey ^= Zobrist.castling[GetCastlingRightsIndex()];
+        
+        if (moved.Type == PieceType.King) {
+            if (moved.Color == PieceColor.White) {
+                whiteCanCastleKingSide = false;
+                whiteCanCastleQueenSide = false;
+            } else {
+                blackCanCastleKingSide = false;
+                blackCanCastleQueenSide = false;
+            }
+        }
+        if (moved.Type == PieceType.Rook) {
+            if (m.from == 0) whiteCanCastleQueenSide = false;
+            if (m.from == 7) whiteCanCastleKingSide = false;
+            if (m.from == 56) blackCanCastleQueenSide = false;
+            if (m.from == 63) blackCanCastleKingSide = false;
+        }
+        // If rook is captured
+        if (m.to == 0) whiteCanCastleQueenSide = false;
+        if (m.to == 7) whiteCanCastleKingSide = false;
+        if (m.to == 56) blackCanCastleQueenSide = false;
+        if (m.to == 63) blackCanCastleKingSide = false;
+        
+        // Add new castling rights to key
+        currentKey ^= Zobrist.castling[GetCastlingRightsIndex()];
+
         // Update enPassantSquare
+        // Remove old EP from key
+        if (enPassantSquare != -1) {
+            currentKey ^= Zobrist.enPassant[enPassantSquare % 8];
+        }
+        
         enPassantSquare = -1;
         if (moved.Type == PieceType.Pawn && Math.Abs(m.to - m.from) == 16) {
             enPassantSquare = (m.from + m.to) / 2;
+            // Add new EP to key
+            currentKey ^= Zobrist.enPassant[enPassantSquare % 8];
+        } else {
+            // No EP available
+            currentKey ^= Zobrist.enPassant[8];
         }
 
         // swap side
         sideToMove = (sideToMove == PieceColor.White) ? PieceColor.Black : PieceColor.White;
+        currentKey ^= Zobrist.sideToMove;
+        
         if (sideToMove == PieceColor.White) fullmoveNumber++;
+        
+        // Add to history
+        history.Add(currentKey);
 
         return captured;
     }
@@ -286,24 +396,28 @@ public class Board {
     public void UndoMove(Move m, Piece captured) {
         // pop undo
         var u = undoStack.Pop();
-        // restore side
+        
+        // Remove current key from history
+        history.RemoveAt(history.Count - 1);
+        
+        // Restore state
         sideToMove = (sideToMove == PieceColor.White) ? PieceColor.Black : PieceColor.White;
-        // restore moved piece
+        
+        // Restore pieces
         Piece moved = Get(m.to);
-        // revert promotion
         if (m.promotion != PieceType.None) moved = new Piece(PieceType.Pawn, sideToMove);
+        
         Set(m.from, moved);
-        // restore captured piece
         Set(m.to, captured);
-
-        // handle en passant undocapture
+        
+        // Handle en passant undo
         if (m.isEnPassant) {
             int capIdx = (sideToMove == PieceColor.White) ? (m.to - 8) : (m.to + 8);
             Set(capIdx, new Piece(PieceType.Pawn, sideToMove == PieceColor.White ? PieceColor.Black : PieceColor.White));
             Set(m.to, new Piece(PieceType.None, PieceColor.White));
         }
-
-        // undo castling rook move
+        
+        // Undo castling rook
         if (m.isCastling) {
             if (m.to % 8 == 6) {
                 int rookFrom = m.to - 1;
@@ -318,7 +432,7 @@ public class Board {
             }
         }
 
-        // restore other state flags
+        // Restore flags
         whiteCanCastleKingSide = u.prevWhiteCastleK;
         whiteCanCastleQueenSide = u.prevWhiteCastleQ;
         blackCanCastleKingSide = u.prevBlackCastleK;
@@ -326,6 +440,59 @@ public class Board {
         enPassantSquare = u.prevEnPassant;
         halfmoveClock = u.prevHalfmove;
         fullmoveNumber = u.prevFullmove;
+        currentKey = u.prevKey;
+    }
+
+    private int GetCastlingRightsIndex() {
+        int idx = 0;
+        if (whiteCanCastleKingSide) idx |= 1;
+        if (whiteCanCastleQueenSide) idx |= 2;
+        if (blackCanCastleKingSide) idx |= 4;
+        if (blackCanCastleQueenSide) idx |= 8;
+        return idx;
+    }
+    
+    private ulong GenerateZobristKey() {
+        ulong key = 0;
+        for (int i = 0; i < 64; i++) {
+            Piece p = Get(i);
+            if (!p.IsNone) {
+                key ^= Zobrist.pieces[i, Zobrist.GetPieceIndex(p)];
+            }
+        }
+        key ^= Zobrist.castling[GetCastlingRightsIndex()];
+        if (enPassantSquare != -1) {
+            key ^= Zobrist.enPassant[enPassantSquare % 8];
+        } else {
+            key ^= Zobrist.enPassant[8];
+        }
+        if (sideToMove == PieceColor.Black) {
+            key ^= Zobrist.sideToMove;
+        }
+        return key;
+    }
+
+    public bool IsDraw() {
+        if (halfmoveClock >= 100) return true; // 50-move rule
+        if (IsRepetition()) return true;
+        return false;
+    }
+
+    public bool IsRepetition() {
+        // Check history for current key
+        // We need to check if it appears 3 times.
+        // History includes current position.
+        int count = 0;
+        for (int i = history.Count - 1; i >= 0; i--) {
+            if (history[i] == currentKey) {
+                count++;
+                if (count >= 3) return true;
+            }
+            // Optimization: can stop if halfmove clock resets?
+            // Yes, repetition is only possible within the current halfmove clock window (irreversible moves reset it)
+            // But for simplicity, checking list is fast enough for now.
+        }
+        return false;
     }
 
     public bool IsKingInCheck(PieceColor color) {
@@ -343,12 +510,6 @@ public class Board {
 
     public bool IsSquareAttacked(int sq, PieceColor byColor) {
         // Check pawn attacks
-        int pawnDir = byColor == PieceColor.White ? -1 : 1; // Attack comes from opposite direction
-        // Actually, if 'byColor' is White, they attack Up (index + 7/9).
-        // If we are checking if 'sq' is attacked BY White, we look for White pawns at sq - 7 or sq - 9 (if white moves +8)
-        // Wait, White pawns move +8. They attack +7 and +9.
-        // So if we are at 'sq', a White pawn at 'sq - 7' attacks 'sq' (if valid).
-        
         int attackDir = byColor == PieceColor.White ? 1 : -1;
         
         // Check for pawns
