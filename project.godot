@@ -11,21 +11,20 @@ config_version=5
 [application]
 
 config/name="Antigravity_Chess"
-run/main_scene="res://main_game.tscn"
-config/features=PackedStringArray("4.3", "Mobile")
-
-[dotnet]
-
-project/assembly_name="Antigravity_Chess"
+run/main_scene="res://boot.tscn"
+config/features=PackedStringArray("4.5", "Mobile")
 
 [display]
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/mode=3
-window/size/resizable=true
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
+
+[dotnet]
+
+project/assembly_name="Antigravity_Chess"
 
 [rendering]
 

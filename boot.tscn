@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/boot.gd" id="1"]
+
+[node name="Boot" type="Node"]
+script = ExtResource("1")
+
+[node name="Label" type="Label" parent="."]
+offset_right = 1152.0
+offset_bottom = 648.0
+text = "BOOTING..."
+horizontal_alignment = 1
+vertical_alignment = 1
