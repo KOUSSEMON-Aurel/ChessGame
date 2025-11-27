@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Chess"
 run/main_scene="res://Main.tscn"
-config/features=PackedStringArray("4.1")
+config/features=PackedStringArray("4.5")
 config/icon="res://icon.png"
 
 [autoload]
@@ -28,6 +28,12 @@ gdscript/warnings/return_value_discarded=false
 window/size/viewport_width=640
 window/size/viewport_height=980
 
+[dotnet]
+
+project/assembly_name="Chess"
+
 [rendering]
 
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 environment/defaults/default_environment="res://default_env.tres"

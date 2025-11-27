@@ -4,7 +4,6 @@ class_name Board
 
 signal clicked
 signal unclicked
-signal moved
 signal halfmove
 signal fullmove
 signal taken
@@ -28,11 +27,36 @@ var fen = ""
 var default_fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
 var cleared = true
 var highlighed_tiles = []
+var pieces_3d_container : Node3D # Container for 3D pieces
 
 func _ready():
 	# grid will map the pieces in the game
 	grid.resize(num_squares)
+	# Create 3D container for pieces in the SubViewport
+	var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
+	if subviewport != null:
+		if not subviewport.has_node("Pieces3D"):
+			pieces_3d_container = Node3D.new()
+			pieces_3d_container.name = "Pieces3D"
+			subviewport.add_child(pieces_3d_container)
+		else:
+			pieces_3d_container = subviewport.get_node("Pieces3D")
+	else:
+		# Fallback: create as direct child
+		if not has_node("Pieces3D"):
+			pieces_3d_container = Node3D.new()
+			pieces_3d_container.name = "Pieces3D"
+			add_child(pieces_3d_container)
+		else:
+			pieces_3d_container = get_node("Pieces3D")
+	
 	draw_tiles()
+	
+	# Initialize markers after viewport and tiles are ready
+	# We need to wait one frame for the camera to be fully updated? 
+	# Actually Raycast depends on Camera transform which is set in scene.
+	_init_markers()
+	
 	#hide_labels()
 	# Set board layout using Forsyth Edwards encoded string
 	#setup_pieces("r1b1k2r/5pp1/p3p2p/2b4P/2BnnKP1/1P41q/P1PP4/1RBQ4 w qk - 43 21")
@@ -277,7 +301,14 @@ func set_piece(key: String, i: int, castling: String):
 	p.pos = Vector2(i % 8, i / 8)
 	p.obj = Pieces.get_piece(p.key, p.side)
 	grid[i] = p
-	$Grid.get_child(i).add_child(p.obj)
+	
+	# Position the 3D piece
+	if p.obj != null:
+		# Use pre-calculated marker position
+		var marker_pos = get_marker_position(i)
+		p.obj.position = marker_pos
+		pieces_3d_container.add_child(p.obj)
+	
 	# Check castling rights
 	match key:
 		"r":
@@ -300,6 +331,74 @@ func set_piece(key: String, i: int, castling: String):
 			kings[p.side] = p
 
 
+var markers = {} # Cache for marker positions
+
+func get_marker_position(index: int) -> Vector3:
+	if markers.has(index):
+		return markers[index]
+	
+	# Calculate position on the fly if not cached (fallback)
+	var x = index % 8
+	@warning_ignore("integer_division")
+	var y = index / 8
+	return get_3d_pos_from_2d(Vector2(x, y))
+
+func _init_markers():
+	# Create debug markers to visualize alignment
+	for y in 8:
+		for x in 8:
+			var index = get_grid_index(x, y)
+			var pos3d = get_3d_pos_from_2d(Vector2(x, y))
+			markers[index] = pos3d
+			
+			# DEBUG: Add a small red sphere to see where the center is
+			# Uncomment to see alignment dots
+			# var debug_mesh = MeshInstance3D.new()
+			# var sphere = SphereMesh.new()
+			# sphere.radius = 10.0
+			# sphere.height = 20.0
+			# debug_mesh.mesh = sphere
+			# var mat = StandardMaterial3D.new()
+			# mat.albedo_color = Color(1, 0, 0)
+			# debug_mesh.material_override = mat
+			# debug_mesh.position = pos3d
+			# if pieces_3d_container != null:
+			# 	pieces_3d_container.add_child(debug_mesh)
+
+
+func get_3d_pos_from_2d(grid_pos: Vector2) -> Vector3:
+	var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
+	if subviewport == null:
+		return Vector3.ZERO
+		
+	var camera = subviewport.get_node_or_null("Camera3D")
+	if camera == null:
+		return Vector3.ZERO
+	
+	# Calculate center of the square in pixels relative to the viewport
+	var offset = square_width / 2.0
+	var screen_pos = Vector2(
+		grid_pos.x * square_width + offset,
+		grid_pos.y * square_width + offset
+	)
+	
+	# Project ray from camera
+	var from = camera.project_ray_origin(screen_pos)
+	var dir = camera.project_ray_normal(screen_pos)
+	
+	# Intersect with plane Y=0
+	# Plane equation: (p - p0) . n = 0
+	# Ray equation: p = from + t * dir
+	# t = (p0 - from) . n / (dir . n)
+	# p0 = (0,0,0), n = (0,1,0)
+	
+	var n = Vector3(0, 1, 0)
+	var t = -from.dot(n) / dir.dot(n)
+	var intersection = from + dir * t
+	
+	return intersection
+
+
 func clear_board():
 	for i in 64:
 		take_piece(grid[i], false)
@@ -309,7 +408,9 @@ func clear_board():
 func take_piece(p: Piece, emit = true):
 	if p == null:
 		return
-	p.obj.get_parent().remove_child(p.obj)
+	if p.obj != null and p.obj.get_parent() != null:
+		p.obj.get_parent().remove_child(p.obj)
+		p.obj.queue_free()
 	grid[get_grid_index(p.pos.x, p.pos.y)] = null
 	set_halfmoves(0)
 	if emit:
@@ -351,7 +452,7 @@ func add_square(s: ColorRect, x: int, y: int):
 		add_label(s, SIDE, str(8 - y))
 	if y == 7:
 		add_label(s, UNDER, char(97 + x))
-	$Grid.add_child(s)
+	$Container/Grid.add_child(s)
 
 
 func add_label(node, pos, chr):
@@ -365,27 +466,68 @@ func add_label(node, pos, chr):
 	node.add_child(l)
 
 
-func hide_labels(show_labels = false):
-	for label in get_tree().get_nodes_in_group("labels"):
-		label.visible = show_labels
+var dragged_piece: Piece = null
+var drag_offset: Vector3 = Vector3.ZERO
 
+func cancel_drag():
+	if dragged_piece != null:
+		print("DEBUG: Cancelling drag for ", dragged_piece.key)
+		Pieces.set_piece_drag_state(dragged_piece.obj, false) # Reset visual state
+		return_piece(dragged_piece) # Snap back to original position
+		dragged_piece = null
 
 func square_event(event: InputEvent, x: int, y: int):
-	#print("event type : ", event.get_class())
 	if event is InputEventMouseButton:
-		get_viewport().set_input_as_handled()
-		print("Clicked at: ", [x, y])
-		var p = get_piece_in_grid(x, y)
-		print(p)
-		if p != null:
-			if event.pressed:
+		if event.pressed:
+			get_viewport().set_input_as_handled()
+			var p = get_piece_in_grid(x, y)
+			if p != null:
+				dragged_piece = p
+				
+				# Enable drag visual state (draw on top)
+				Pieces.set_piece_drag_state(p.obj, true)
+				
+				# Calculate offset to prevent jumping
+				var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
+				if subviewport and p.obj:
+					var camera = subviewport.get_node_or_null("Camera3D")
+					if camera:
+						var mouse_pos = get_viewport().get_mouse_position()
+						var from = camera.project_ray_origin(mouse_pos)
+						var dir = camera.project_ray_normal(mouse_pos)
+						# Intersect with plane Y=0
+						var t = -from.y / dir.y
+						var hit_pos = from + dir * t
+						drag_offset = p.obj.position - hit_pos
+				
+				print("DEBUG: Drag start ", p.key)
 				emit_signal("clicked", p)
-			else:
-				print("unclick event : ", p)
-				emit_signal("unclicked", p)
-	# Mouse position is relative to the square
-	if event is InputEventMouseMotion:
-		emit_signal("moved", event.position)
+		else:
+			# Release
+			if dragged_piece != null:
+				print("DEBUG: Drag end ", dragged_piece.key)
+				Pieces.set_piece_drag_state(dragged_piece.obj, false) # Reset visual state
+				emit_signal("unclicked", dragged_piece)
+				dragged_piece = null
+	
+	elif event is InputEventMouseMotion:
+		if dragged_piece != null and dragged_piece.obj != null:
+			# Dragging logic
+			var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
+			if subviewport:
+				var camera = subviewport.get_node_or_null("Camera3D")
+				if camera:
+					var mouse_pos = get_viewport().get_mouse_position()
+					var from = camera.project_ray_origin(mouse_pos)
+					var dir = camera.project_ray_normal(mouse_pos)
+					
+					# Intersect with plane Y=0
+					var t = -from.y / dir.y
+					var pos3d = from + dir * t
+					
+					# Apply offset
+					# Add small Y offset (10) to lift slightly, rely on no_depth_test for visibility
+					dragged_piece.obj.position = pos3d + drag_offset + Vector3(0, 10, 0)
 
 
 func get_grid_index(x: int, y: int):
@@ -398,6 +540,7 @@ func get_piece_in_grid(x: int, y: int):
 
 
 func move_piece(p: Piece, engine_turn: bool):
+	print("DEBUG: move_piece called for ", p.key, " to ", p.new_pos)
 	var pos = get_grid_index(p.pos.x, p.pos.y)
 	if engine_turn:
 		highlighed_tiles.append(pos)
@@ -407,10 +550,13 @@ func move_piece(p: Piece, engine_turn: bool):
 		highlighed_tiles.append(pos)
 	grid[pos] = p
 	p.pos = p.new_pos
-	# Re-parent piece on board
-	p.obj.get_parent().remove_child(p.obj)
-	p.obj.position = Vector2(0, 0)
-	$Grid.get_child(p.pos.x + 8 * p.pos.y).add_child(p.obj)
+	
+	# Update 3D position
+	if p.obj != null:
+		var index = get_grid_index(p.pos.x, p.pos.y)
+		print("DEBUG: Updating 3D position to marker ", index)
+		p.obj.position = get_marker_position(index)
+	
 	if p != passant_pawn:
 		passant_pawn = null
 	p.tagged = false # Prevent castling after move
@@ -540,7 +686,7 @@ func test_highlight_square():
 func highlight_square(n: int, apply = true):
 	assert(n >= 0)
 	assert(n < num_squares)
-	var sqr: ColorRect = $Grid.get_child(n)
+	var sqr: ColorRect = $Container/Grid.get_child(n)
 	if apply:
 		sqr.color = mod_color
 	else:
@@ -552,7 +698,7 @@ func highlight_square(n: int, apply = true):
 
 func test_square_is_white():
 	for n in num_squares:
-		if $Grid.get_child(n).color == white:
+		if $Container/Grid.get_child(n).color == white:
 			assert(square_is_white(n))
 		else:
 			assert(!square_is_white(n))
@@ -566,7 +712,7 @@ func square_is_white(n: int):
 # Check if it is valid to move to the new position of a piece
 # Return true/false and null/piece that occupies the position plus
 # castling and passant flags to indicate to check for these situations
-func get_position_info(p: Piece, non_player_move, offset_divisor = square_width):
+func get_position_info(p: Piece, non_player_move, _offset_divisor = square_width):
 	var castling = false
 	var passant = false
 	var x: int
@@ -575,11 +721,25 @@ func get_position_info(p: Piece, non_player_move, offset_divisor = square_width)
 		x = int(p.new_pos.x - p.pos.x)
 		y = int(p.new_pos.y - p.pos.y)
 	else:
-		# p.new_pos needs to be set based on position of manually moved piece
-		var offset = p.obj.position / offset_divisor
-		x = int(round(offset.x))
-		y = int(round(offset.y))
-		p.new_pos = Vector2(p.pos.x + x, p.pos.y + y)
+		# Calculate new_pos based on current 3D position
+		# Find the closest square center (marker)
+		var best_dist = INF
+		var best_pos = p.pos
+		
+		# Optimization: only check nearby squares or all 64 (64 is fast enough)
+		for cy in 8:
+			for cx in 8:
+				var marker = get_marker_position(get_grid_index(cx, cy))
+				# Ignore Y height difference, only X/Z distance
+				var dist = Vector2(p.obj.position.x, p.obj.position.z).distance_to(Vector2(marker.x, marker.z))
+				if dist < best_dist:
+					best_dist = dist
+					best_pos = Vector2(cx, cy)
+		
+		p.new_pos = best_pos
+		x = int(p.new_pos.x - p.pos.x)
+		y = int(p.new_pos.y - p.pos.y)
+		
 	if p.new_pos.x < 0 or p.new_pos.y < 0 or p.new_pos.x > 7 or p.new_pos.y > 7:
 		# piece dropped outside of grid
 		return { "ok": false }
@@ -606,7 +766,12 @@ func get_position_info(p: Piece, non_player_move, offset_divisor = square_width)
 				passant = y == -1 and ax == 1 and p.pos.y == 3
 			# Check for valid horizontal move
 			if ok:
-				ok = ax == 0 and p2 == null or ay == 1 and ax == 1
+				if ax == 1 and ay == 1:
+					# Diagonal move: only valid if capturing or en passant
+					ok = p2 != null or passant
+				else:
+					# Forward move: only valid if empty
+					ok = ax == 0 and p2 == null
 		"R": # Check for valid horizontal or vertical move of rook
 			ok = ax > 0 and ay == 0 or ax == 0 and ay > 0
 		"B": # Check for valid diagonal move of bishop
@@ -641,6 +806,101 @@ func get_position_info(p: Piece, non_player_move, offset_divisor = square_width)
 	if !ok and p == passant_pawn:
 		passant_pawn = null
 	return { "ok": ok, "piece": p2, "castling": castling, "passant": passant }
+
+
+# Helper to snap piece back to its grid position visually
+func return_piece(p: Piece):
+	if p != null and p.obj != null:
+		var index = get_grid_index(p.pos.x, p.pos.y)
+		p.obj.position = get_marker_position(index)
+
+
+# Visual Hints Logic
+var hint_markers = []
+
+func show_hints(piece: Piece):
+	clear_hints()
+	var piece_vals = { "P": 1, "N": 3, "B": 3, "R": 5, "Q": 9, "K": 100 }
+	
+	for y in 8:
+		for x in 8:
+			# Temporarily set new_pos to check validity
+			var original_new_pos = piece.new_pos
+			piece.new_pos = Vector2(x, y)
+			
+			# Check if it's a valid move
+			# non_player_move=true because we are simulating
+			var info = get_position_info(piece, true)
+			
+			if info["ok"]:
+				var target_piece = info["piece"]
+				var is_capture = target_piece != null or (info["passant"] and passant_pawn != null)
+				
+				var color = Color.GREEN # Default move
+				var is_ring = false
+				
+				if is_capture:
+					is_ring = true
+					var my_val = piece_vals.get(piece.key, 0)
+					var target_val = 0
+					if target_piece:
+						target_val = piece_vals.get(target_piece.key, 0)
+					elif info["passant"]:
+						target_val = 1 # Pawn
+					
+					# Check if target square is defended by enemy (enemy of my side)
+					# is_checked(x, y, my_side) checks if (x,y) is attacked by enemies of my_side
+					var is_defended = is_checked(x, y, piece.side)
+					
+					if not is_defended:
+						color = Color.YELLOW # Safe capture
+					else:
+						if my_val > target_val:
+							color = Color.RED # High risk (Bad trade)
+						else:
+							color = Color.BROWN # Medium risk (Trade or Good trade)
+				
+				add_hint_marker(x, y, color, is_ring)
+			
+			piece.new_pos = original_new_pos
+
+
+func clear_hints():
+	for marker in hint_markers:
+		marker.queue_free()
+	hint_markers = []
+
+
+func add_hint_marker(x, y, color, is_ring = false):
+	var index = get_grid_index(x, y)
+	var sqr = $Container/Grid.get_child(index)
+	
+	var marker = Control.new()
+	marker.set_anchors_preset(Control.PRESET_FULL_RECT)
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var circle = Panel.new()
+	var marker_size = square_width * (0.9 if is_ring else 0.4)
+	circle.custom_minimum_size = Vector2(marker_size, marker_size)
+	@warning_ignore("integer_division")
+	circle.position = Vector2(square_width/2 - marker_size/2, square_width/2 - marker_size/2)
+	circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	var style = StyleBoxFlat.new()
+	if is_ring:
+		style.bg_color = Color.TRANSPARENT
+		style.set_border_width_all(4)
+		style.border_color = color
+	else:
+		style.bg_color = color
+	
+	style.set_corner_radius_all(marker_size/2)
+	style.set_anti_aliased(true)
+	circle.add_theme_stylebox_override("panel", style)
+	
+	marker.add_child(circle)
+	sqr.add_child(marker)
+	hint_markers.append(marker)
 
 
 func _on_HighlightTimer_timeout():
