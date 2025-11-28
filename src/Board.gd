@@ -29,9 +29,20 @@ var cleared = true
 var highlighed_tiles = []
 var pieces_3d_container : Node3D # Container for 3D pieces
 
+# Visuals & Audio
+var last_move_highlights = [] # Stores indices of start/end squares
+var tween_move: Tween
+var audio_players = {}
+var highlight_pulse_tween: Tween
+
+
 func _ready():
 	# grid will map the pieces in the game
 	grid.resize(num_squares)
+	
+	# Override highlight color to Cyan (remove Yellow)
+	mod_color = Color(0.0, 1.0, 1.0, 0.7)
+	
 	# Create 3D container for pieces in the SubViewport
 	var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
 	if subviewport != null:
@@ -57,10 +68,38 @@ func _ready():
 	# Actually Raycast depends on Camera transform which is set in scene.
 	_init_markers()
 	
+	_init_audio()
+	
 	#hide_labels()
 	# Set board layout using Forsyth Edwards encoded string
 	#setup_pieces("r1b1k2r/5pp1/p3p2p/2b4P/2BnnKP1/1P41q/P1PP4/1RBQ4 w qk - 43 21")
 	setup_pieces()
+
+func _init_audio():
+	var sounds = {
+		"move": "res://assets/audio/move.wav",
+		"capture": "res://assets/audio/capture.wav",
+		"check": "res://assets/audio/check.wav",
+		"start": "res://assets/audio/start.wav",
+		"end": "res://assets/audio/end.wav"
+	}
+	
+	for key in sounds:
+		var player = AudioStreamPlayer.new()
+		player.name = "Audio_" + key
+		if FileAccess.file_exists(sounds[key]):
+			var stream = load(sounds[key])
+			if stream:
+				player.stream = stream
+		else:
+			print("Warning: Audio file not found: ", sounds[key])
+		add_child(player)
+		audio_players[key] = player
+
+func play_sound(key):
+	if audio_players.has(key) and audio_players[key].stream != null:
+		audio_players[key].play()
+
 	#test_square_is_white()
 	#test_highlight_square()
 	#print(position_to_move(Vector2(0, 0)))
@@ -448,10 +487,10 @@ func draw_tiles():
 
 func add_square(s: ColorRect, x: int, y: int):
 	s.connect("gui_input", Callable(self, "square_event").bind(x, y))
-	if x == 0:
-		add_label(s, SIDE, str(8 - y))
-	if y == 7:
-		add_label(s, UNDER, char(97 + x))
+	#if x == 0:
+	#	add_label(s, SIDE, str(8 - y))
+	#if y == 7:
+	#	add_label(s, UNDER, char(97 + x))
 	$Container/Grid.add_child(s)
 
 
@@ -539,26 +578,47 @@ func get_piece_in_grid(x: int, y: int):
 	return p
 
 
-func move_piece(p: Piece, engine_turn: bool):
+func move_piece(p: Piece, _engine_turn: bool):
 	print("DEBUG: move_piece called for ", p.key, " to ", p.new_pos)
-	var pos = get_grid_index(p.pos.x, p.pos.y)
-	if engine_turn:
-		highlighed_tiles.append(pos)
-	grid[pos] = null
-	pos = get_grid_index(p.new_pos.x, p.new_pos.y)
-	if engine_turn:
-		highlighed_tiles.append(pos)
-	grid[pos] = p
+	var start_pos_idx = get_grid_index(p.pos.x, p.pos.y)
+	var end_pos_idx = get_grid_index(p.new_pos.x, p.new_pos.y)
+	
+	# Handle Capture Sound
+	var captured_piece = grid[end_pos_idx]
+	if captured_piece != null:
+		play_sound("capture")
+	else:
+		play_sound("move")
+		
+	# Update Grid
+	grid[start_pos_idx] = null
+	grid[end_pos_idx] = p
 	p.pos = p.new_pos
 	
-	# Update 3D position
+	# Update 3D position with Animation
 	if p.obj != null:
-		var index = get_grid_index(p.pos.x, p.pos.y)
-		print("DEBUG: Updating 3D position to marker ", index)
-		p.obj.position = get_marker_position(index)
+		var target_pos = get_marker_position(end_pos_idx)
+		
+		# Create Tween for smooth movement
+		var tween = create_tween()
+		tween.set_trans(Tween.TRANS_CUBIC)
+		tween.set_ease(Tween.EASE_OUT)
+		tween.tween_property(p.obj, "position", target_pos, 0.3)
+		
+		# Add a small "hop" effect for knights or just general feel
+		if p.key == "N":
+			var mid_pos = (p.obj.position + target_pos) / 2.0
+			mid_pos.y += 20.0 # Hop height
+			# We would need a separate tween or property for arc, simplified here to direct slide
+			pass
 	
 	if p != passant_pawn:
 		passant_pawn = null
+	
+	# Set en passant pawn if double push
+	if p.key == "P" and abs(p.new_pos.y - p.pos.y) == 2:
+		passant_pawn = p
+		
 	p.tagged = false # Prevent castling after move
 	if p.key == "P":
 		set_halfmoves(0)
@@ -566,12 +626,32 @@ func move_piece(p: Piece, engine_turn: bool):
 		set_halfmoves(halfmoves + 1)
 	if p.side == "B":
 		set_fullmoves(fullmoves + 1)
-	if engine_turn:
-		$HighlightTimer.start()
-		highlight_square(highlighed_tiles[0])
-	else:
-		highlighed_tiles = []
+	
+	# Highlights
+	clear_last_move_highlights()
+	highlight_last_move(start_pos_idx, end_pos_idx, p.side)
+	
 	cleared = false
+
+
+func highlight_last_move(start_idx, end_idx, side):
+	last_move_highlights = [start_idx, end_idx]
+	for idx in last_move_highlights:
+		var sqr = $Container/Grid.get_child(idx)
+		var is_white_sq = square_is_white(idx)
+		
+		if side == "W":
+			# Blue theme for White
+			sqr.color = Color(0.4, 0.6, 1.0, 1.0) if is_white_sq else Color(0.2, 0.4, 0.8, 1.0)
+		else:
+			# Red/Purple theme for Black
+			sqr.color = Color(1.0, 0.5, 0.5, 1.0) if is_white_sq else Color(0.8, 0.3, 0.3, 1.0)
+
+func clear_last_move_highlights():
+	for idx in last_move_highlights:
+		highlight_square(idx, false)
+	last_move_highlights = []
+
 
 
 func is_king_checked(p: Piece):
@@ -687,9 +767,23 @@ func highlight_square(n: int, apply = true):
 	assert(n >= 0)
 	assert(n < num_squares)
 	var sqr: ColorRect = $Container/Grid.get_child(n)
+	
+	# Stop any existing pulse
+	if highlight_pulse_tween and highlight_pulse_tween.is_running():
+		# Ideally we should track tweens per square, but for single selection this is ok
+		pass
+		
 	if apply:
 		sqr.color = mod_color
+		# Pulse effect for selection
+		var t = create_tween().set_loops()
+		t.tween_property(sqr, "color", mod_color.lightened(0.2), 0.5)
+		t.tween_property(sqr, "color", mod_color, 0.5)
+		highlight_pulse_tween = t
 	else:
+		if highlight_pulse_tween:
+			highlight_pulse_tween.kill()
+			
 		if square_is_white(n):
 			sqr.color = white
 		else:
@@ -702,6 +796,97 @@ func test_square_is_white():
 			assert(square_is_white(n))
 		else:
 			assert(!square_is_white(n))
+
+
+# Génère tous les coups pseudo-légaux pour le mode élimination
+# Autorise de laisser le Roi en échec, mais interdit de mettre le Roi en prise volontairement
+func get_fallback_moves(side: String) -> Array:
+	var moves = []
+	var enemy_side = "B" if side == "W" else "W"
+	print("DEBUG: get_fallback_moves called for side: ", side)
+	
+	for i in range(num_squares):
+		var p = grid[i]
+		if p != null and p.side == side:
+			# print("DEBUG: Checking piece ", p.key, " at ", i)
+			var piece_moves = []
+			var x = i % 8
+			@warning_ignore("integer_division")
+			var y = i / 8
+			
+			match p.key:
+				"P":
+					var dir = -1 if side == "W" else 1
+					# Avance de 1
+					if is_valid_pos(x, y + dir) and get_piece_in_grid(x, y + dir) == null:
+						piece_moves.append(pos_to_str(x, y) + pos_to_str(x, y + dir))
+						# Avance de 2
+						if (side == "W" and y == 6) or (side == "B" and y == 1):
+							if is_valid_pos(x, y + dir * 2) and get_piece_in_grid(x, y + dir * 2) == null:
+								piece_moves.append(pos_to_str(x, y) + pos_to_str(x, y + dir * 2))
+					# Captures
+					for dx in [-1, 1]:
+						if is_valid_pos(x + dx, y + dir):
+							var target = get_piece_in_grid(x + dx, y + dir)
+							if target != null and target.side == enemy_side:
+								piece_moves.append(pos_to_str(x, y) + pos_to_str(x + dx, y + dir))
+				
+				"N":
+					var offsets = [[-1, -2], [1, -2], [-2, -1], [2, -1], [-2, 1], [2, 1], [-1, 2], [1, 2]]
+					for o in offsets:
+						var tx = x + o[0]
+						var ty = y + o[1]
+						if is_valid_pos(tx, ty):
+							var target = get_piece_in_grid(tx, ty)
+							if target == null or target.side == enemy_side:
+								piece_moves.append(pos_to_str(x, y) + pos_to_str(tx, ty))
+								
+				"K":
+					var offsets = [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]
+					for o in offsets:
+						var tx = x + o[0]
+						var ty = y + o[1]
+						if is_valid_pos(tx, ty):
+							var target = get_piece_in_grid(tx, ty)
+							if (target == null or target.side == enemy_side):
+								# Pour le Roi, on vérifie quand même s'il se met en échec (suicide interdit)
+								if !is_checked(tx, ty, side):
+									piece_moves.append(pos_to_str(x, y) + pos_to_str(tx, ty))
+									
+				"R", "B", "Q":
+					var dirs = []
+					if p.key == "R" or p.key == "Q":
+						dirs.append_array([[0, 1], [0, -1], [1, 0], [-1, 0]])
+					if p.key == "B" or p.key == "Q":
+						dirs.append_array([[1, 1], [1, -1], [-1, 1], [-1, -1]])
+						
+					for d in dirs:
+						var tx = x
+						var ty = y
+						while true:
+							tx += d[0]
+							ty += d[1]
+							if !is_valid_pos(tx, ty):
+								break
+							var target = get_piece_in_grid(tx, ty)
+							if target == null:
+								piece_moves.append(pos_to_str(x, y) + pos_to_str(tx, ty))
+							else:
+								if target.side == enemy_side:
+									piece_moves.append(pos_to_str(x, y) + pos_to_str(tx, ty))
+								break # Bloqué par une pièce (amie ou ennemie)
+			
+			moves.append_array(piece_moves)
+			
+	return moves
+
+func is_valid_pos(x, y):
+	return x >= 0 and x < 8 and y >= 0 and y < 8
+
+func pos_to_str(x, y):
+	var cols = ["a", "b", "c", "d", "e", "f", "g", "h"]
+	var rows = ["8", "7", "6", "5", "4", "3", "2", "1"]
+	return cols[x] + rows[y]
 
 
 func square_is_white(n: int):
@@ -756,13 +941,13 @@ func get_position_info(p: Piece, non_player_move, _offset_divisor = square_width
 				ok = y == 1
 				if p.pos.y == 1 and y == 2:
 					ok = true
-					passant_pawn = p
+					# passant_pawn = p # Do not set it here, only in move_piece
 				passant = y == 1 and ax == 1 and p.pos.y == 4
 			else:
 				ok = y == -1
 				if p.pos.y == 6 and -2 == y:
 					ok = true
-					passant_pawn = p
+					# passant_pawn = p # Do not set it here, only in move_piece
 				passant = y == -1 and ax == 1 and p.pos.y == 3
 			# Check for valid horizontal move
 			if ok:

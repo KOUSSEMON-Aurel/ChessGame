@@ -137,6 +137,7 @@ layout_mode = 2
 text = "000/000"
 
 [node name="TopPiecesBar" type="PanelContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_type_variation = &"Panel"
 
@@ -162,6 +163,7 @@ layout_mode = 2
 theme_override_constants/margin_right = 0
 
 [node name="BottomBar" type="PanelContainer" parent="VBox"]
+custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_type_variation = &"Panel"
 

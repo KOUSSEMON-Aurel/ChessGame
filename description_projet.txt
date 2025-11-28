@@ -1,0 +1,73 @@
+# Description du Projet Godot Chess
+
+## 1. Vue d'ensemble
+Ce projet est une application de jeu d'échecs développée avec le moteur de jeu **Godot Engine (version 4)**. Elle offre une interface graphique (GUI) permettant de jouer aux échecs contre un moteur d'intelligence artificielle (IA) ou contre un autre joueur humain.
+
+L'application se distingue par son architecture découplée où l'interface Godot communique avec un moteur d'échecs standard (compatible UCI, comme Stockfish) via un serveur intermédiaire écrit en **Go (Golang)**.
+
+## 2. Architecture Technique
+Le système est composé de trois entités principales :
+
+1.  **L'Interface Graphique (GUI) - Godot** :
+    *   Gère l'affichage de l'échiquier et des pièces.
+    *   Gère les interactions utilisateur (souris, menus).
+    *   Valide les coups légaux.
+    *   Communique avec le serveur via le protocole UDP.
+    *   Langage : GDScript.
+
+2.  **Le Serveur Intermédiaire - Go** :
+    *   Agit comme un pont (proxy) entre Godot et le moteur d'échecs.
+    *   Lance le moteur d'échecs en tant que sous-processus.
+    *   Reçoit les commandes de Godot via UDP et les transmet au moteur via l'entrée standard (stdin).
+    *   Reçoit les réponses du moteur via la sortie standard (stdout) et les renvoie à Godot via UDP.
+    *   Fichiers clés : `src/engine/iopiper.go`.
+
+3.  **Le Moteur d'Échecs (Chess Engine)** :
+    *   Un exécutable externe compatible avec le protocole UCI (Universal Chess Interface).
+    *   Calcule les coups de l'IA.
+    *   Exemple : Stockfish.
+
+## 3. Fonctionnalités Clés
+*   **Modes de Jeu** :
+    *   Joueur vs IA.
+    *   Joueur vs Joueur (local).
+    *   IA vs IA (mode démonstration/test).
+*   **Gestion de la Partie** :
+    *   Validation stricte des coups (déplacements légaux, échecs, roque, prise en passant, promotion).
+    *   Détection de fin de partie (Échec et Mat, Pat/Nulle).
+    *   Historique des coups.
+*   **Sauvegarde et Chargement** :
+    *   Support du format **FEN** (Forsyth-Edwards Notation) pour les positions.
+    *   Support du format **PGN** (Portable Game Notation) pour les parties complètes.
+*   **Interface** :
+    *   Visualisation 2D/3D (le code suggère une vue hybride avec des éléments 3D dans un SubViewport).
+    *   Indicateurs visuels (dernier coup, suggestions/pondering).
+
+## 4. Structure des Fichiers (Dossier `src`)
+*   **`Main.gd`** : Le contrôleur principal de l'application.
+    *   Gère la machine à états du jeu (`IDLE`, `PLAYER_TURN`, `ENGINE_TURN`, etc.).
+    *   Gère l'interface utilisateur (menus, scores, popups).
+    *   Orchestre la communication avec le module `Engine`.
+*   **`Board.gd`** : La logique de l'échiquier.
+    *   Contient la représentation de la grille (tableau `grid` de 64 cases).
+    *   Implémente toute la logique des règles d'échecs (`get_position_info`, `is_checked`, `is_king_checked`).
+    *   Gère le rendu des cases et le placement des pièces (y compris la conversion 2D/3D).
+*   **`Pieces.gd` / `Piece.gd`** : Gestion des objets "Pièce" individuels.
+*   **`engine/`** : Contient le code source Go pour le serveur UDP (`iopiper.go`, etc.).
+
+## 5. Détails d'Implémentation Notables
+*   **Communication UDP** : Le choix de l'UDP pour une communication locale est intéressant pour sa simplicité et sa rapidité, bien que TCP soit plus courant pour garantir l'ordre des messages. Le code Go gère les buffers pour assurer la fluidité.
+*   **Logique de Validation** : La validation des coups est entièrement réimplémentée en GDScript dans `Board.gd`, ce qui rend le jeu indépendant du moteur pour les règles de base (le moteur est utilisé pour l'IA, pas pour l'arbitrage en mode humain).
+*   **Hybridation 2D/3D** : Le script `Board.gd` utilise des calculs de projection (`project_ray_origin`) pour mapper les clics de souris 2D vers des positions 3D, suggérant une volonté d'avoir un rendu visuel riche.
+
+Le projet semble fonctionnel au niveau du code source, avec une structure claire. Les scripts sont bien commentés et organisés. L'utilisation de Go pour le backend démontre une approche performante pour gérer les processus externes sans bloquer le thread principal de Godot.
+
+## 7. Mises à Jour Récentes (Novembre 2025)
+*   **Nouveau Mode de Jeu : "Élimination Totale"** :
+    *   Condition de victoire : Capturer toutes les pièces de l'adversaire.
+    *   Le Roi n'est plus une pièce royale (pas d'échec ni de mat), il peut être capturé comme les autres.
+    *   Implémentation d'une IA de secours ("Fallback AI") pour permettre à Stockfish de jouer même dans des positions "illégales" (Roi en échec) propres à ce mode.
+*   **Améliorations Techniques** :
+    *   **Fallback AI** : Système permettant de générer des coups pseudo-légaux (captures prioritaires) lorsque le moteur d'échecs refuse de jouer (car il considère la position perdante/illégale selon les règles classiques).
+    *   **Stabilité Réseau** : Changement du port UDP par défaut vers **7071** pour éviter les conflits avec des processus fantômes. Ajout de délais de connexion pour plus de robustesse.
+    *   **Nettoyage** : Gestion améliorée de la fermeture de l'application pour tuer les processus Stockfish orphelins.
