@@ -54,16 +54,27 @@ if exist "%STOCKFISH_ZIP%" (
     powershell -Command "& {Expand-Archive -Path '%STOCKFISH_ZIP%' -DestinationPath 'engine' -Force}"
     
     REM Find and rename the Stockfish executable
+    set FOUND=0
     for /r "engine" %%f in (stockfish*.exe) do (
         if not "%%~nxf"=="%STOCKFISH_BINARY%" (
+            echo Found Stockfish binary: %%f
             move "%%f" "engine\%STOCKFISH_BINARY%" >nul 2>nul
+            set FOUND=1
+            goto :stockfish_found
+        ) else (
+            set FOUND=1
             goto :stockfish_found
         )
     )
-    :stockfish_found
     
-    del "%STOCKFISH_ZIP%"
-    echo [OK] Stockfish installed: engine\%STOCKFISH_BINARY%
+    :stockfish_found
+    if "%FOUND%"=="1" (
+        del "%STOCKFISH_ZIP%"
+        echo [OK] Stockfish installed: engine\%STOCKFISH_BINARY%
+    ) else (
+        echo WARNING: Stockfish executable not found in extracted files.
+        echo Please check the engine directory manually.
+    )
 ) else (
     echo WARNING: Failed to download Stockfish
     echo You can manually download it from:
