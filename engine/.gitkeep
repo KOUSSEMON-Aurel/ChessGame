@@ -1,0 +1,3 @@
+# This file preserves the engine/ directory structure in Git
+# The Stockfish chess engine is downloaded automatically by running:
+#   ./setup.sh (Linux/macOS) or setup.bat (Windows)
