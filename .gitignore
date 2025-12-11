@@ -27,3 +27,15 @@ fens/
 *.tar.gz
 /tmp/
 Engine.gd.new
+
+# Python / Analysis
+__pycache__/
+venv_analysis/
+*.env
+analysis_complete/
+analysis_indicators/
+Emoji/
+
+# OS specific
+.DS_Store
+Thumbs.db

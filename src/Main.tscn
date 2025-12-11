@@ -1,7 +1,7 @@
 [gd_scene load_steps=10 format=3 uid="uid://cgcfx3twc5adf"]
 
 [ext_resource type="PackedScene" uid="uid://c8usdvp4rr7d2" path="res://Board.tscn" id="1"]
-[ext_resource type="Script" path="res://Main.gd" id="2"]
+[ext_resource type="Script" uid="uid://b43e6hpirdq2s" path="res://Main.gd" id="2"]
 [ext_resource type="PackedScene" path="res://Alert.tscn" id="3"]
 [ext_resource type="PackedScene" uid="uid://dl4s6x8gtvxk8" path="res://engine/Engine.tscn" id="4"]
 [ext_resource type="Texture2D" uid="uid://byu46yrpllged" path="res://assets/start.png" id="5"]
@@ -191,4 +191,3 @@ show_hidden_files = true
 
 [node name="Promote" parent="c" instance=ExtResource("8")]
 visible = false
-

@@ -34,7 +34,7 @@ var last_move_highlights = [] # Stores indices of start/end squares
 var tween_move: Tween
 var audio_players = {}
 var highlight_pulse_tween: Tween
-
+var move_indicator: MoveIndicator
 
 func _ready():
 	# grid will map the pieces in the game
@@ -60,6 +60,14 @@ func _ready():
 			add_child(pieces_3d_container)
 		else:
 			pieces_3d_container = get_node("Pieces3D")
+	
+	# Initialiser le système d'indicateurs
+	if not has_node("MoveIndicator"):
+		move_indicator = MoveIndicator.new()
+		move_indicator.name = "MoveIndicator"
+		add_child(move_indicator)
+	else:
+		move_indicator = get_node("MoveIndicator")
 	
 	draw_tiles()
 	
@@ -111,6 +119,23 @@ func play_sound(key):
 
 #func _gui_input(event):
 #	print("Main receive Event : ", event)
+
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		# DEBUG: Test indicators
+		var test_pos = Vector2(4, 4) # Case e5 (approx)
+		if event.keycode == KEY_1:
+			show_indicator(test_pos, MoveIndicator.Type.GOOD)      # 1 -> Good (Pouce)
+		elif event.keycode == KEY_2:
+			show_indicator(test_pos, MoveIndicator.Type.BRILLIANT) # 2 -> Brilliant (!!)
+		elif event.keycode == KEY_3:
+			show_indicator(test_pos, MoveIndicator.Type.EXCELLENT) # 3 -> Excellent (!)
+		elif event.keycode == KEY_4:
+			show_indicator(test_pos, MoveIndicator.Type.BEST)      # 4 -> Best (Etoile)
+		elif event.keycode == KEY_5:
+			show_indicator(test_pos, MoveIndicator.Type.BLUNDER)   # 5 -> Blunder (??)
+		elif event.keycode == KEY_6:
+			show_indicator(test_pos, MoveIndicator.Type.INACCURACY)# 6 -> Inaccuracy (?!)
 
 func test_pgn_to_long_conversion():
 	print(pgn_to_long("a4", "W"))
@@ -578,18 +603,55 @@ func get_piece_in_grid(x: int, y: int):
 	return p
 
 
-func move_piece(p: Piece, _engine_turn: bool):
-	print("DEBUG: move_piece called for ", p.key, " to ", p.new_pos)
+func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
+	# print("DEBUG: move_piece called for ", p.key, " to ", p.new_pos, " capture=", was_capture)
 	var start_pos_idx = get_grid_index(p.pos.x, p.pos.y)
 	var end_pos_idx = get_grid_index(p.new_pos.x, p.new_pos.y)
 	
-	# Handle Capture Sound
-	var captured_piece = grid[end_pos_idx]
-	if captured_piece != null:
+	# Detect Special Moves
+	var is_promotion = (p.key == "P" and (p.new_pos.y == 0 or p.new_pos.y == 7))
+	var is_castling = (p.key == "K" and abs(p.new_pos.x - p.pos.x) > 1)
+	
+	# Determine Indicator Type based on move impact
+	# Priority: Make it dynamic and fun like the video
+	var indicator_type = null
+	
+	# 1. Promotion is always Brilliant
+	if is_promotion:
+		indicator_type = MoveIndicator.Type.BRILLIANT
+		play_sound("promote")
+	
+	# 2. Castling is usually Best or Excellent
+	elif is_castling:
+		indicator_type = MoveIndicator.Type.EXCELLENT
+		play_sound("castle")
+		
+	# 3. Capture logic
+	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
+		# Randomly assign Brilliant vs Best vs Good for variety until real engine analysis is linked
+		var r = randf()
+		if r < 0.1:
+			indicator_type = MoveIndicator.Type.BRILLIANT
+		elif r < 0.4:
+			indicator_type = MoveIndicator.Type.BEST # Star
+		else:
+			indicator_type = MoveIndicator.Type.GOOD # Thumb
+			
 	else:
 		play_sound("move")
+		# Simple moves can be Good or just nothing/Best if it's the engine move
+		# Let's show "GOOD" occasionally for normal moves to make it alive
+		if randf() < 0.3:
+			indicator_type = MoveIndicator.Type.GOOD
+	
+	# Trigger Visual
+	if indicator_type != null:
+		# Use timer to wait for piece to arrive slightly? Or instant?
+		# Instant looks better for "feedback"
+		show_indicator(p.new_pos, indicator_type)
 		
+	
 	# Update Grid
 	grid[start_pos_idx] = null
 	grid[end_pos_idx] = p
@@ -788,6 +850,17 @@ func highlight_square(n: int, apply = true):
 			sqr.color = white
 		else:
 			sqr.color = grey
+
+
+func show_indicator(grid_pos: Vector2, type: MoveIndicator.Type):
+	if move_indicator:
+		var idx = get_grid_index(int(grid_pos.x), int(grid_pos.y))
+		var sqr = $Container/Grid.get_child(idx)
+		var local_pos = sqr.get_global_rect().position - get_global_rect().position + sqr.size / 2
+		# On passe la demi-taille de la case pour permettre un positionnement précis dans le coin
+		move_indicator.spawn_indicator_at_pos(local_pos, type, 2.0, sqr.size / 2)
+	else:
+		push_warning("MoveIndicator not found")
 
 
 func test_square_is_white():

@@ -920,10 +920,10 @@ func try_to_make_a_move(piece: Piece, non_player_move = true):
 				if rook != null:
 					move_piece(rook, false)
 				board.take_piece(info["piece"])
-				move_piece(piece)
+				move_piece(piece, true, true) # Capture du roi (rare/impossible normalement)
 		else:
 			board.take_piece(info["piece"])
-			move_piece(piece)
+			move_piece(piece, true, true) # Capture normale
 			# DÉSACTIVATION DE LA DÉTECTION DE MAT
 			# La fonction is_king_checked a une logique erronée : elle ne vérifie que si le Roi
 			# peut bouger, sans vérifier si une autre pièce peut bloquer l'échec ou capturer l'attaquant.
@@ -963,10 +963,10 @@ func return_piece(piece: Piece):
 			promote_to = ""
 
 
-func move_piece(piece: Piece, not_castling = true):
+func move_piece(piece: Piece, not_castling = true, was_capture = false):
 	set_next_color(piece.side == "B")
 	var pos = [piece.pos, piece.new_pos]
-	board.move_piece(piece, state == ENGINE_TURN)
+	board.move_piece(piece, state == ENGINE_TURN, was_capture)
 	if state == PLAYER_TURN:
 		moves.append(board.position_to_move(pos[0]) + board.position_to_move(pos[1]))
 		if not_castling:
