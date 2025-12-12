@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Chess"
 run/main_scene="res://Main.tscn"
-config/features=PackedStringArray("4.5")
+config/features=PackedStringArray("4.4")
 config/icon="res://icon.png"
 
 [autoload]
@@ -27,7 +27,6 @@ gdscript/warnings/return_value_discarded=false
 
 window/size/viewport_width=640
 window/size/viewport_height=900
-window/size/resizable=true
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

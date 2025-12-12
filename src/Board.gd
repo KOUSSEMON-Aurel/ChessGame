@@ -570,6 +570,8 @@ func square_event(event: InputEvent, x: int, y: int):
 			# Release
 			if dragged_piece != null:
 				print("DEBUG: Drag end ", dragged_piece.key)
+				# Update new_pos to the drop square
+				dragged_piece.new_pos = Vector2(x, y)
 				Pieces.set_piece_drag_state(dragged_piece.obj, false) # Reset visual state
 				emit_signal("unclicked", dragged_piece)
 				dragged_piece = null
@@ -858,7 +860,7 @@ func show_indicator(grid_pos: Vector2, type: MoveIndicator.Type):
 		var sqr = $Container/Grid.get_child(idx)
 		var local_pos = sqr.get_global_rect().position - get_global_rect().position + sqr.size / 2
 		# On passe la demi-taille de la case pour permettre un positionnement précis dans le coin
-		move_indicator.spawn_indicator_at_pos(local_pos, type, 2.0, sqr.size / 2)
+		move_indicator.spawn_indicator_at_pos(local_pos, type, 1.5, sqr.size / 2)
 	else:
 		push_warning("MoveIndicator not found")
 
@@ -890,10 +892,14 @@ func get_fallback_moves(side: String) -> Array:
 			match p.key:
 				"P":
 					var dir = -1 if side == "W" else 1
+					var promo_rank = 0 if side == "W" else 7
 					# Avance de 1
 					if is_valid_pos(x, y + dir) and get_piece_in_grid(x, y + dir) == null:
-						piece_moves.append(pos_to_str(x, y) + pos_to_str(x, y + dir))
-						# Avance de 2
+						var move_str = pos_to_str(x, y) + pos_to_str(x, y + dir)
+						if y + dir == promo_rank:
+							move_str += "q" # Auto-promote to Queen
+						piece_moves.append(move_str)
+						# Avance de 2 (pas de promotion ici, car rang initial)
 						if (side == "W" and y == 6) or (side == "B" and y == 1):
 							if is_valid_pos(x, y + dir * 2) and get_piece_in_grid(x, y + dir * 2) == null:
 								piece_moves.append(pos_to_str(x, y) + pos_to_str(x, y + dir * 2))
@@ -902,7 +908,10 @@ func get_fallback_moves(side: String) -> Array:
 						if is_valid_pos(x + dx, y + dir):
 							var target = get_piece_in_grid(x + dx, y + dir)
 							if target != null and target.side == enemy_side:
-								piece_moves.append(pos_to_str(x, y) + pos_to_str(x + dx, y + dir))
+								var cap_str = pos_to_str(x, y) + pos_to_str(x + dx, y + dir)
+								if y + dir == promo_rank:
+									cap_str += "q" # Auto-promote to Queen
+								piece_moves.append(cap_str)
 				
 				"N":
 					var offsets = [[-1, -2], [1, -2], [-2, -1], [2, -1], [-2, 1], [2, 1], [-1, 2], [1, 2]]

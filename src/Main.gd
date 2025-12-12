@@ -25,11 +25,16 @@ var state = IDLE
 
 # Game features
 var game_mode = 0 # 0: vs IA, 1: vs Human, 2: IA vs IA
+var player_color = 0 # 0 = White, 1 = Black (en mode Joueur vs IA)
 var win_condition = 0 # 0: Mat/Pat classique, 1: Élimination totale
 var score_white = 0
 var score_black = 0
 
 var piece_values = { "P": 1, "N": 3, "B": 3, "R": 5, "Q": 9 }
+var promotion_enabled = true # Default to Standard Rules
+
+func _on_promotion_toggled(pressed):
+	promotion_enabled = pressed
 
 # AI variables
 var multipv_data = {} # Stores best moves from info lines: { 1: {move: "e2e4", score: 0.5}, ... }
@@ -40,32 +45,31 @@ var ai_level_black = 10
 var turn_start_time = 0
 var current_turn_id = 0
 
-# AI Level Configuration - Allocation progressive avec temps uniforme
+# AI Level Configuration - Gap exponentiel entre niveaux
 func get_ai_config(level: int) -> Dictionary:
-	# Temps de réflexion réel (augmente avec niveau)
-	var movetimes = [50, 100, 200, 400, 600, 800, 1000, 1200, 1400, 1600]
-	# Temps total perçu fixe: 1200ms
-	var fake_delay = 1200 - movetimes[level - 1]
+	# Temps de réflexion réel (minimum 500ms pour fiabilité UDP)
+	# Progression exponentielle: 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000
+	var movetimes = [500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000]
 	
-	# Allocation progressive de ressources (Réduite pour éviter le freeze)
-	var hash_values = [16, 16, 16, 32, 32, 32, 48, 48, 64, 64]  # MB (Max 64MB pour stabilité)
-	var thread_counts = [1, 1, 1, 1, 1, 1, 2, 2, 2, 2] # Max 2 threads
+	# Allocation progressive de ressources
+	var hash_values = [16, 16, 32, 32, 48, 48, 64, 64, 96, 128]  # MB
+	var thread_counts = [1, 1, 1, 1, 2, 2, 2, 2, 2, 2]
 
-	var multipv_values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # Force MultiPV 1 pour éviter buffer overflow UDP
+	var multipv_values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 	
-	# Skill progression exponentielle
-	var skills = [0, 3, 6, 9, 11, 13, 15, 17, 19, 20]
+	# Skill Level Stockfish: 0 = débutant absolu, 20 = GM
+	# Gap exponentiel : 0, 2, 5, 8, 10, 12, 14, 16, 18, 20
+	var skills = [0, 2, 5, 8, 10, 12, 14, 16, 18, 20]
 	
-	# Taux d'erreur (niveaux faibles) et robotisme (niveaux hauts)
-	var error_rates = [0.50, 0.35, 0.20, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-	# Probabilité de jouer le meilleur coup (robotisme croissant)
-	var best_move_probs = [0.50, 0.60, 0.70, 0.75, 0.80, 0.85, 0.90, 0.93, 0.95, 0.98]
+	# Taux d'erreur pour les bas niveaux (joue parfois un coup aléatoire)
+	var error_rates = [0.40, 0.30, 0.20, 0.10, 0.05, 0.02, 0.0, 0.0, 0.0, 0.0]
+	# Probabilité de jouer le meilleur coup vs un coup suboptimal
+	var best_move_probs = [0.30, 0.45, 0.55, 0.65, 0.75, 0.82, 0.88, 0.92, 0.96, 0.99]
 	
 	var idx = level - 1
 	return {
 		"skill": skills[idx],
 		"movetime": movetimes[idx],
-		"fake_delay": fake_delay,
 		"multipv": multipv_values[idx],
 		"hash": hash_values[idx],
 		"threads": thread_counts[idx],
@@ -231,6 +235,15 @@ func create_start_menu():
 	mode_opt.connect("item_selected", Callable(self, "_update_level_visibility").bind(level_vbox, color_opt))
 	color_opt.connect("item_selected", Callable(self, "_update_level_visibility_color").bind(level_vbox, mode_opt))
 
+	# Promotion Rule Option
+	var prom_hbox = HBoxContainer.new()
+	vbox.add_child(prom_hbox)
+	var prom_check = CheckBox.new()
+	prom_check.text = "Activer Promotions (Standard)"
+	prom_check.button_pressed = promotion_enabled
+	prom_check.connect("toggled", Callable(self, "_on_promotion_toggled"))
+	prom_hbox.add_child(prom_check)
+
 	
 	# Spacer
 	var spacer = Control.new()
@@ -321,7 +334,7 @@ func _on_start_menu_confirmed(mode_opt, color_opt, win_opt):
 		if mode == 0:
 			if !is_white: # Player is Black, AI is White
 				ai_level_white = ai_level_black
-
+			player_color = color_idx # Set player_color for PvAI mode
 
 	
 	game_mode = mode
@@ -390,6 +403,16 @@ func handle_state(event, msg = ""):
 		IDLE:
 			match event:
 				CONNECT:
+					# Nettoyage automatique des processus zombies (Linux)
+					if OS.get_name() == "Linux":
+						print("Cleaning up zombie processes...")
+						OS.execute("killall", ["-9", "iopiper"], [], false) # false = non-blocking? Wait, we NEED blocking or wait. 
+						# Actually, we want it to finish before starting.
+						# OS.execute returns output in 'output' array.
+						OS.execute("killall", ["-9", "iopiper"])
+						OS.execute("killall", ["-9", "stockfish-linux-x64"])
+						await get_tree().create_timer(0.5).timeout # Pause pour être sûr
+					
 					var status = engine.start_udp_server()
 					if status.started:
 						await get_tree().create_timer(1.0).timeout
@@ -592,35 +615,29 @@ func prompt_engine(move = ""):
 	# pour invalider le timer.
 	current_turn_id += 1
 	var my_turn_id = current_turn_id
-	var timeout_time = (config.movetime / 1000.0) + 2.0
+	# Timeout plus long pour éviter fallbacks intempestifs (movetime + 5s)
+	var timeout_time = (config.movetime / 1000.0) + 5.0
 	get_tree().create_timer(timeout_time).timeout.connect(_on_engine_timeout.bind(my_turn_id))
 
 func _on_engine_timeout(turn_id):
 	# On vérifie si le timeout correspond bien au tour actuel
 	if state == ENGINE_TURN and turn_id == current_turn_id:
-		print("WARNING: Engine timeout! Checking fallback...")
+		print("WARNING: Engine timeout! Sending stop command...")
 		
-		if win_condition == 1:
-			# En mode élimination, un timeout peut signifier que Stockfish a planté sur une position illégale
-			# On tente le coup de secours
+		# Toujours envoyer 'stop' d'abord pour récupérer le meilleur coup partiel
+		engine.send_packet("stop")
+		
+		# Attendre 2s supplémentaires pour la réponse du moteur
+		await get_tree().create_timer(2.0).timeout
+		
+		# Si on est toujours en ENGINE_TURN avec le même ID, le moteur n'a vraiment pas répondu
+		if state == ENGINE_TURN and turn_id == current_turn_id:
+			print("Engine still unresponsive after stop. Using fallback...")
 			var side = "W" if white_next else "B"
 			var fallback_moves = board.get_fallback_moves(side)
 			if fallback_moves.size() > 0:
-				print("Timeout -> Fallback move found.")
 				var fallback_move = fallback_moves[randi() % fallback_moves.size()]
-				# On simule la réception du coup
-				# Il faut appeler la logique de traitement du coup manuellement car on n'est pas dans _process_packet
-				# On utilise une fonction dédiée ou on copie la logique
-				# Pour faire simple, on va injecter le coup comme si on l'avait reçu, mais on doit faire attention au thread
-				# Le plus sûr est de passer par un appel différé ou de modifier l'état ici
-				
-				# Hack propre : on appelle une fonction qui gère le coup
 				apply_fallback_move(fallback_move)
-				return
-
-		# Comportement par défaut (Mat/Pat ou pas de fallback trouvé)
-		print("Forcing engine stop.")
-		engine.send_packet("stop") # Force engine to stop and return best move so far
 
 
 func stow_taken_piece(p: Piece):
@@ -816,14 +833,19 @@ func ponder(move = ""):
 
 
 func move_engine_piece(move: String):
+	# print("DEBUG: Engine move string: ", move)
 	var pos1 = board.move_to_position(move.substr(0, 2))
 	var p: Piece = board.get_piece_in_grid(pos1.x, pos1.y)
 	if p == null:
 		print("ERROR: Engine tried to move non-existent piece at ", pos1, " Move: ", move)
 		return
 	p.new_pos = board.move_to_position(move.substr(2, 2))
-	if move[move.length() - 1] in "rnbq":
-		promote_to = move[move.length() - 1]
+	
+	# Check promotion
+	if move.length() > 4 and move[4] in "rnbq":
+		promote_to = move[4]
+		print("DEBUG: Engine promotion detected! To: ", promote_to)
+		
 	try_to_make_a_move(p)
 
 
@@ -836,32 +858,50 @@ func mouse_entered():
 
 
 func piece_clicked(piece):
-	# Block input in AI vs AI mode
+	# ═══════════════════════════════════════════════════════════════════════════════
+	# BLOCAGE INTERACTION IA : Empêcher le joueur de toucher les pièces de l'IA
+	# ═══════════════════════════════════════════════════════════════════════════════
+	
+	# 1. Mode IA vs IA : Aucune interaction possible
 	if game_mode == 2:
+		board.cancel_drag()
 		return
-
+	
+	# 2. Vérifier que c'est bien le tour du joueur
 	if state != PLAYER_TURN:
 		print("Not player turn: ", state)
 		board.cancel_drag()
 		return
-		
-	var is_white_turn = white_next
-	var piece_is_white = piece.side == "W"
 	
-	if game_mode == 1:
+	# 3. Mode Joueur vs IA (game_mode == 0)
+	#    Le joueur ne peut toucher QUE ses pièces (selon sa couleur choisie au démarrage)
+	if game_mode == 0:
+		var player_is_white = (player_color == 0)  # 0 = White, 1 = Black
+		var piece_is_white = (piece.side == "W")
+		
+		# Si la pièce n'est pas de la couleur du joueur, bloquer
+		if player_is_white != piece_is_white:
+			board.cancel_drag()
+			return
+	
+	# 4. Mode Joueur vs Joueur (game_mode == 1)
+	#    Les joueurs ne peuvent toucher que les pièces de leur tour actuel
+	elif game_mode == 1:
+		var is_white_turn = white_next
+		var piece_is_white = (piece.side == "W")
+		
 		if is_white_turn != piece_is_white:
 			board.cancel_drag()
 			return
-	elif is_white_turn != piece_is_white:
-		board.cancel_drag()
-		return
 
 	selected_piece = piece
 	board.show_hints(piece)
 
 
 func piece_unclicked(piece):
+	print("DEBUG: piece_unclicked for ", piece.key)
 	if selected_piece == null:
+		print("DEBUG: selected_piece is null, returning")
 		return
 	board.clear_hints()
 	show_transport_buttons(false)
@@ -869,13 +909,16 @@ func piece_unclicked(piece):
 
 
 func try_to_make_a_move(piece: Piece, non_player_move = true):
+	print("DEBUG: try_to_make_a_move ", piece.key, " non_player=", non_player_move)
 	if not non_player_move:
 		if state != PLAYER_TURN:
+			print("DEBUG: Not player turn, returning piece")
 			board.return_piece(piece)
 			return
 		var is_white_turn = white_next
 		var piece_is_white = piece.side == "W"
 		if is_white_turn != piece_is_white:
+			print("DEBUG: Wrong turn color, returning piece")
 			board.return_piece(piece)
 			return
 
@@ -886,7 +929,7 @@ func try_to_make_a_move(piece: Piece, non_player_move = true):
 		if info["piece"] != null:
 			ok_to_move = true
 		else:
-			if info["passant"] and board.passant_pawn.pos.x == piece.new_pos.x:
+			if info["passant"] and board.passant_pawn != null and board.passant_pawn.pos.x == piece.new_pos.x:
 				board.take_piece(board.passant_pawn)
 				ok_to_move = true
 			else:
@@ -954,12 +997,30 @@ func return_piece(piece: Piece):
 	if piece != null:
 		board.return_piece(piece)
 		selected_piece = null
+		
+		# Promotion Logic
 		if piece.key == "P":
-			if piece.side == "B" and piece.pos.y == 7 or piece.side == "W" and piece.pos.y == 0:
-				if promote_to == "":
-					promote.open(piece)
+			print("DEBUG: return_piece called for Pawn. Side=", piece.side, " pos=", piece.pos, " new_pos=", piece.new_pos)
+			var on_promo_rank = (piece.side == "B" and piece.pos.y == 7) or (piece.side == "W" and piece.pos.y == 0)
+			print("DEBUG: on_promo_rank=", on_promo_rank, " (B needs y=7, W needs y=0)")
+			if on_promo_rank:
+				# CHECK: Is Promotion Rule active?
+				print("DEBUG: Pawn at end! Side=", piece.side, " PosY=", piece.pos.y, " Enabled=", promotion_enabled, " PromoteTo='", promote_to, "'")
+				if promotion_enabled:
+					if promote_to == "":
+						# Check if AI turn -> Auto Queen
+						if state == ENGINE_TURN or game_mode == 2: # AI vs AI or Engine's move
+							print("DEBUG: AI turn, Auto-promoting to Queen")
+							Pieces.promote(piece, "q")
+						else:
+							# Human Player: Show Menu
+							promote.open(piece)
+					else:
+						print("DEBUG: Executing Promotion to ", promote_to)
+						Pieces.promote(piece, promote_to)
 				else:
-					Pieces.promote(piece, promote_to)
+					pass
+					
 			promote_to = ""
 
 
@@ -1299,6 +1360,15 @@ func apply_fallback_move(move_str):
 			
 		p.new_pos = end_pos
 		board.move_piece(p, true)
+		
+		# Handle Promotion for fallback moves (e.g. "c7c8q")
+		if move_str.length() > 4 and move_str[4] in "rnbq":
+			var promo_char = move_str[4]
+			print("DEBUG: Fallback promotion detected! Promoting to ", promo_char)
+			if promotion_enabled:
+				# Wait for slide animation to complete (0.3s in Board.gd move_piece)
+				await get_tree().create_timer(0.35).timeout
+				Pieces.promote(p, promo_char)
 		
 		# Logique de fin de tour manuelle (car on contourne handle_state(MOVE))
 		var side = p.side

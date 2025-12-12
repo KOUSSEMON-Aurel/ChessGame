@@ -150,11 +150,80 @@ func set_piece_drag_state(node: Node3D, active: bool):
 
 
 func promote(p: Piece, promote_to = "q"):
+	print("DEBUG: Pieces.promote called! Transforming to ", promote_to)
 	p.key = promote_to.to_upper()
 	var parent = p.obj.get_parent()
-	if p.obj != null:
-		p.obj.queue_free() # Delete pawn
+	var old_obj = p.obj
+	
+	if old_obj != null:
+		# Animation: Shrink old piece
+		print("DEBUG: Playing shrink animation")
+		play_disappear_shrink(old_obj)
+		
 	# Now add the new piece in place of the pawn
+	# Wait slightly for shrink? No, user said "Instantly spawner" then animate
 	p.obj = get_piece(p.key, p.side)
+	
 	if p.obj != null and parent != null:
+		# Position new piece at old piece's position
+		if old_obj != null:
+			p.obj.position = old_obj.position 
+			# Keep rotation etc if needed, but get_piece sets it
+		
+		print("DEBUG: Adding new piece to parent")
 		parent.add_child(p.obj)
+		
+		# Animation: Pop new piece
+		print("DEBUG: Playing jump pop animation")
+		play_jump_pop(p.obj)
+	else:
+		print("ERROR: Failed to create new piece or parent is null")
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ANIMATIONS DE PROMOTION (Basées sur analyse vidéo)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+const DURATION_SHRINK = 0.1
+const DURATION_POP = 0.12
+const DURATION_JUMP_UP = 0.08
+const DURATION_JUMP_DOWN = 0.15
+
+# Animation: Pièce rétrécit et disparaît (Shrink + Fade)
+func play_disappear_shrink(node: Node3D):
+	var tween = node.create_tween()
+	tween.set_parallel(true)
+	
+	# Shrink rapide avec effet "aspiré"
+	tween.tween_property(node, "scale", Vector3(0, 0, 0), DURATION_SHRINK).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	
+	# Légère rotation pendant la disparition
+	tween.tween_property(node, "rotation_degrees:y", node.rotation_degrees.y + 90, DURATION_SHRINK)
+	
+	tween.set_parallel(false)
+	tween.tween_callback(node.queue_free)
+
+# Animation: Pièce promue apparaît avec "Jump Pop" majestueux
+# Échelle: 0 -> 1.15 -> 1.0, Position Y: monte puis redescend
+func play_jump_pop(node: Node3D):
+	var final_scale = Vector3(1500, 1500, 1500) # Échelle standard des pièces
+	var overshoot_scale = final_scale * 1.15
+	
+	# État initial
+	node.scale = Vector3(0.01, 0.01, 0.01)
+	var base_y = node.position.y
+	
+	var tween = node.create_tween()
+	
+	# 1. Pop rapide (0 -> 1.15)
+	tween.set_parallel(true)
+	tween.tween_property(node, "scale", overshoot_scale, DURATION_POP).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	
+	# 2. Jump Up (montée rapide)
+	tween.set_parallel(false)
+	tween.tween_property(node, "position:y", base_y + 12, DURATION_JUMP_UP).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	
+	# 3. Drop Down (descente douce avec rebond)
+	tween.tween_property(node, "position:y", base_y, DURATION_JUMP_DOWN).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+	
+	# 4. Rebond d'échelle (1.15 -> 1.0)
+	tween.tween_property(node, "scale", final_scale, 0.08).set_trans(Tween.TRANS_CUBIC)
