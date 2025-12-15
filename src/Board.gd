@@ -51,6 +51,7 @@ var mat_hint_risk_yellow: StandardMaterial3D
 
 var dragged_piece: Piece = null
 var drag_offset: Vector3 = Vector3.ZERO
+var camera_controller: ChessCameraController = null
 
 # Input control - set by Main.gd
 var input_enabled: bool = true
@@ -106,6 +107,14 @@ func _ready():
 		add_child(move_indicator)
 	else:
 		move_indicator = get_node("MoveIndicator")
+	
+	# Initialiser le contrôleur de caméra
+	var sub_vp = get_node_or_null("Container/SubViewportContainer/SubViewport")
+	if sub_vp:
+		camera_controller = sub_vp.get_node_or_null("Camera3D") as ChessCameraController
+		if camera_controller:
+			print("✅ Camera Controller initialized in Board")
+
 	
 	draw_tiles_3d()
 	
@@ -651,21 +660,38 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 	var is_castling = (p.key == "K" and abs(p.new_pos.x - p.pos.x) > 1)
 	
 	var indicator_type = null
+	
+	# 🎬 CAMERA: Préparer la position cible 3D pour le zoom
+	var target_3d_pos = get_marker_position(end_pos_idx)
+	
 	if is_promotion:
 		indicator_type = MoveIndicator.Type.BRILLIANT
 		play_sound("promote")
+		if camera_controller: camera_controller.dynamic_zoom("promotion", target_3d_pos)
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
 		play_sound("castle")
+		if camera_controller: camera_controller.dynamic_zoom("castle", target_3d_pos)
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
 		var r = randf()
 		if r < 0.1: indicator_type = MoveIndicator.Type.BRILLIANT
 		elif r < 0.4: indicator_type = MoveIndicator.Type.BEST
 		else: indicator_type = MoveIndicator.Type.GOOD
+		
+		# 🎬 CAMERA: Zoom sur capture
+		if camera_controller:
+			var captured_piece = grid[end_pos_idx]
+			if captured_piece and (captured_piece.key == "Q" or captured_piece.key == "R"):
+				camera_controller.dynamic_zoom("capture_major", target_3d_pos)
+			else:
+				camera_controller.dynamic_zoom("capture", target_3d_pos)
 	else:
 		play_sound("move")
 		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
+		
+		# 🎬 CAMERA: Zoom léger sur coup normal
+		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
 	
 	if indicator_type != null:
 		show_indicator(p.new_pos, indicator_type)
@@ -696,6 +722,33 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 	highlight_last_move(start_pos_idx, end_pos_idx, p.side)
 	
 	cleared = false
+	
+	# 🎬 CAMERA: Vérifier si ce coup a causé un échec ou mat pour l'effet de caméra
+	if camera_controller:
+		# On vérifie si ce coup met le roi adverse en échec
+		var check_info = is_king_checked(p) 
+		# Note: is_king_checked vérifie l'état actuel. Si on vient de bouger, p est la pièce qui a bougé.
+		# La fonction originale semble vérifier si "side" est en échec. 
+		# Si p.side vient de jouer, on veut savoir si l'ADVERSAIRE est en échec.
+		# La fonction is_king_checked utilise p.side ou l'inverse.
+		# Regardons l'implémentation de is_king_checked : 
+		# "if p.side == "B": side = "W"; else: side = "B"" -> Elle checke l'opposant !
+		# Donc c'est parfait.
+		
+		if check_info.mated:
+			var king = kings[check_info.side]
+			var king_pos = get_marker_position(get_grid_index(king.pos.x, king.pos.y))
+			# NOTE: Détection de mat locale potentiellement instable (voir Main.gd), 
+			# on utilise l'effet de check standard pour éviter de bloquer la caméra sur un faux mat.
+			camera_controller.dynamic_zoom("check", king_pos) 
+		elif check_info.checked:
+			var king = kings[check_info.side]
+			var king_pos = get_marker_position(get_grid_index(king.pos.x, king.pos.y))
+			camera_controller.dynamic_zoom("check", king_pos)
+		else:
+			# Si pas de check/mat, on reset la caméra après un délai
+			# Nous utilisons un timer oneshot pour ne pas bloquer
+			get_tree().create_timer(1.5).timeout.connect(func(): camera_controller.reset_camera())
 
 func highlight_last_move(start_idx, end_idx, side):
 	last_move_highlights = [start_idx, end_idx]
@@ -715,7 +768,7 @@ func clear_last_move_highlights():
 func is_king_checked(p: Piece):
 	var side = p.side
 	if p.key == "K":
-		return { "checked": is_checked(p.new_pos.x, p.new_pos.y, side) }
+		return { "checked": is_checked(p.new_pos.x, p.new_pos.y, side), "mated": false, "side": side }
 	else:
 		if p.side == "B": side = "W"
 		else: side = "B"
@@ -858,9 +911,22 @@ func show_indicator(grid_pos: Vector2, type: MoveIndicator.Type):
 			# get_3d_pos_from_2d was doing 2D -> 3D.
 			# Now we reverse.
 			
-			# Actually, we can just use the same logic as 2D if we didn't destroy existing logical grid mapping
-			var screen_pos_final = camera.unproject_position(pos3d)
-			move_indicator.spawn_indicator_at_pos(screen_pos_final, type, 1.5, Vector2(55, 38))
+			# Use 3D tracking with 3D offset to maintain visual position regardless of zoom
+			# Calculate tile orientation vectors
+			var p0 = get_marker_position(0)
+			var p1 = get_marker_position(1)
+			var p8 = get_marker_position(8)
+			var v_right = p1 - p0  # Full width vector
+			var v_down = p8 - p0   # Full height vector
+			
+			# Original screen offset was (55, -38) on a ~70px tile
+			# This translates to ~0.78 right and ~0.54 up from center
+			# Apply this ratio in 3D space so it scales with zoom
+			var offset_3d = (v_right * 0.78) - (v_down * 0.54)
+			var target_3d = pos3d + offset_3d
+			
+			# Now use minimal 2D offset since positioning is handled in 3D
+			move_indicator.spawn_indicator_3d(target_3d, camera, type, 1.5, Vector2.ZERO)
 	else:
 		push_warning("MoveIndicator not found")
 

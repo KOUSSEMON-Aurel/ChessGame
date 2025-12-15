@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://d1v1kd1jt7f6k" path="res://Board.gd" id="1"]
 [ext_resource type="Shader" path="res://outline.gdshader" id="2"]
+[ext_resource type="Script" path="res://camera/ChessCameraController.gd" id="3"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_outline"]
 shader = ExtResource("2")
@@ -58,6 +59,9 @@ render_target_update_mode = 4
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 280, 1000, 1396)
 projection = 1
 size = 560.0
+near = 0.1
+far = 4000.0
+script = ExtResource("3")
 near = 0.1
 far = 4000.0
 

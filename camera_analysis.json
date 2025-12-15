@@ -1,0 +1,2575 @@
+{
+  "metadata": {
+    "video_path": "ssstik.io_@chessfxs_1765400769375.mp4",
+    "duration": 36.4,
+    "fps": 30.0,
+    "resolution": "576x720",
+    "total_frames": 1092
+  },
+  "raw_movements": [
+    {
+      "frame": 20,
+      "timestamp": 0.667,
+      "type": "zoom_out",
+      "magnitude": 1.5870000123977661,
+      "radial_flow": -1.403,
+      "zoom_factor": 0.9210000038146973,
+      "feature_matches": 46
+    },
+    {
+      "frame": 22,
+      "timestamp": 0.733,
+      "type": "zoom_out",
+      "magnitude": 1.5770000219345093,
+      "radial_flow": -1.444,
+      "zoom_factor": 0.9210000038146973,
+      "feature_matches": 36
+    },
+    {
+      "frame": 24,
+      "timestamp": 0.8,
+      "type": "zoom_out",
+      "magnitude": 1.503000020980835,
+      "radial_flow": -1.423,
+      "zoom_factor": 0.925000011920929,
+      "feature_matches": 57
+    },
+    {
+      "frame": 72,
+      "timestamp": 2.4,
+      "type": "zoom_in",
+      "magnitude": 1.847000002861023,
+      "radial_flow": 0.544,
+      "zoom_factor": 1.0920000076293945,
+      "feature_matches": 69
+    },
+    {
+      "frame": 74,
+      "timestamp": 2.467,
+      "type": "zoom_in",
+      "magnitude": 2.697000026702881,
+      "radial_flow": 0.833,
+      "zoom_factor": 1.1349999904632568,
+      "feature_matches": 65
+    },
+    {
+      "frame": 76,
+      "timestamp": 2.533,
+      "type": "zoom_in",
+      "magnitude": 3.3959999084472656,
+      "radial_flow": 1.108,
+      "zoom_factor": 1.1699999570846558,
+      "feature_matches": 66
+    },
+    {
+      "frame": 78,
+      "timestamp": 2.6,
+      "type": "zoom_in",
+      "magnitude": 3.7100000381469727,
+      "radial_flow": 1.157,
+      "zoom_factor": 1.1859999895095825,
+      "feature_matches": 73
+    },
+    {
+      "frame": 80,
+      "timestamp": 2.667,
+      "type": "zoom_in",
+      "magnitude": 3.5920000076293945,
+      "radial_flow": 1.227,
+      "zoom_factor": 1.1799999475479126,
+      "feature_matches": 64
+    },
+    {
+      "frame": 82,
+      "timestamp": 2.733,
+      "type": "zoom_in",
+      "magnitude": 3.430000066757202,
+      "radial_flow": 1.029,
+      "zoom_factor": 1.1710000038146973,
+      "feature_matches": 66
+    },
+    {
+      "frame": 84,
+      "timestamp": 2.8,
+      "type": "zoom_in",
+      "magnitude": 2.936000108718872,
+      "radial_flow": 0.964,
+      "zoom_factor": 1.1469999551773071,
+      "feature_matches": 74
+    },
+    {
+      "frame": 86,
+      "timestamp": 2.867,
+      "type": "zoom_in",
+      "magnitude": 2.6419999599456787,
+      "radial_flow": 0.828,
+      "zoom_factor": 1.1319999694824219,
+      "feature_matches": 64
+    },
+    {
+      "frame": 88,
+      "timestamp": 2.933,
+      "type": "zoom_in",
+      "magnitude": 2.311000108718872,
+      "radial_flow": 0.845,
+      "zoom_factor": 1.1160000562667847,
+      "feature_matches": 76
+    },
+    {
+      "frame": 90,
+      "timestamp": 3.0,
+      "type": "zoom_in",
+      "magnitude": 2.061000108718872,
+      "radial_flow": 0.72,
+      "zoom_factor": 1.1030000448226929,
+      "feature_matches": 71
+    },
+    {
+      "frame": 92,
+      "timestamp": 3.067,
+      "type": "zoom_in",
+      "magnitude": 1.8200000524520874,
+      "radial_flow": 0.586,
+      "zoom_factor": 1.090999960899353,
+      "feature_matches": 68
+    },
+    {
+      "frame": 94,
+      "timestamp": 3.133,
+      "type": "pan",
+      "magnitude": 1.5509999990463257,
+      "radial_flow": 0.495,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 96,
+      "timestamp": 3.2,
+      "type": "zoom_in",
+      "magnitude": 1.5529999732971191,
+      "radial_flow": 0.68,
+      "zoom_factor": 1.0779999494552612,
+      "feature_matches": 65
+    },
+    {
+      "frame": 134,
+      "timestamp": 4.467,
+      "type": "zoom_in",
+      "magnitude": 1.5149999856948853,
+      "radial_flow": 0.979,
+      "zoom_factor": 1.0759999752044678,
+      "feature_matches": 73
+    },
+    {
+      "frame": 136,
+      "timestamp": 4.533,
+      "type": "zoom_in",
+      "magnitude": 1.7489999532699585,
+      "radial_flow": 0.96,
+      "zoom_factor": 1.0870000123977661,
+      "feature_matches": 76
+    },
+    {
+      "frame": 138,
+      "timestamp": 4.6,
+      "type": "zoom_in",
+      "magnitude": 1.9470000267028809,
+      "radial_flow": 0.975,
+      "zoom_factor": 1.097000002861023,
+      "feature_matches": 75
+    },
+    {
+      "frame": 140,
+      "timestamp": 4.667,
+      "type": "zoom_in",
+      "magnitude": 1.9930000305175781,
+      "radial_flow": 0.896,
+      "zoom_factor": 1.100000023841858,
+      "feature_matches": 66
+    },
+    {
+      "frame": 142,
+      "timestamp": 4.733,
+      "type": "zoom_in",
+      "magnitude": 1.8170000314712524,
+      "radial_flow": 0.853,
+      "zoom_factor": 1.090999960899353,
+      "feature_matches": 71
+    },
+    {
+      "frame": 144,
+      "timestamp": 4.8,
+      "type": "zoom_in",
+      "magnitude": 1.7549999952316284,
+      "radial_flow": 0.66,
+      "zoom_factor": 1.0880000591278076,
+      "feature_matches": 65
+    },
+    {
+      "frame": 166,
+      "timestamp": 5.533,
+      "type": "pan",
+      "magnitude": 2.4739999771118164,
+      "radial_flow": 0.115,
+      "zoom_factor": 1.0,
+      "feature_matches": 39
+    },
+    {
+      "frame": 168,
+      "timestamp": 5.6,
+      "type": "zoom_in",
+      "magnitude": 5.150000095367432,
+      "radial_flow": 0.54,
+      "zoom_factor": 1.2580000162124634,
+      "feature_matches": 58
+    },
+    {
+      "frame": 170,
+      "timestamp": 5.667,
+      "type": "pan",
+      "magnitude": 2.6570000648498535,
+      "radial_flow": 0.137,
+      "zoom_factor": 1.0,
+      "feature_matches": 69
+    },
+    {
+      "frame": 172,
+      "timestamp": 5.733,
+      "type": "pan",
+      "magnitude": 2.1010000705718994,
+      "radial_flow": 0.022,
+      "zoom_factor": 1.0,
+      "feature_matches": 80
+    },
+    {
+      "frame": 176,
+      "timestamp": 5.867,
+      "type": "pan",
+      "magnitude": 2.4590001106262207,
+      "radial_flow": 0.192,
+      "zoom_factor": 1.0,
+      "feature_matches": 64
+    },
+    {
+      "frame": 178,
+      "timestamp": 5.933,
+      "type": "pan",
+      "magnitude": 5.380000114440918,
+      "radial_flow": -0.194,
+      "zoom_factor": 1.0,
+      "feature_matches": 51
+    },
+    {
+      "frame": 180,
+      "timestamp": 6.0,
+      "type": "pan",
+      "magnitude": 4.521999835968018,
+      "radial_flow": 0.296,
+      "zoom_factor": 1.0,
+      "feature_matches": 29
+    },
+    {
+      "frame": 182,
+      "timestamp": 6.067,
+      "type": "pan",
+      "magnitude": 4.866000175476074,
+      "radial_flow": 0.373,
+      "zoom_factor": 1.0,
+      "feature_matches": 52
+    },
+    {
+      "frame": 184,
+      "timestamp": 6.133,
+      "type": "pan",
+      "magnitude": 5.164999961853027,
+      "radial_flow": 0.464,
+      "zoom_factor": 1.0,
+      "feature_matches": 55
+    },
+    {
+      "frame": 186,
+      "timestamp": 6.2,
+      "type": "pan",
+      "magnitude": 5.822000026702881,
+      "radial_flow": -0.07,
+      "zoom_factor": 1.0,
+      "feature_matches": 63
+    },
+    {
+      "frame": 188,
+      "timestamp": 6.267,
+      "type": "zoom_in",
+      "magnitude": 4.5269999504089355,
+      "radial_flow": 0.603,
+      "zoom_factor": 1.2259999513626099,
+      "feature_matches": 35
+    },
+    {
+      "frame": 190,
+      "timestamp": 6.333,
+      "type": "pan",
+      "magnitude": 3.1519999504089355,
+      "radial_flow": 0.114,
+      "zoom_factor": 1.0,
+      "feature_matches": 43
+    },
+    {
+      "frame": 194,
+      "timestamp": 6.467,
+      "type": "zoom_out",
+      "magnitude": 2.441999912261963,
+      "radial_flow": -0.627,
+      "zoom_factor": 0.878000020980835,
+      "feature_matches": 11
+    },
+    {
+      "frame": 196,
+      "timestamp": 6.533,
+      "type": "zoom_out",
+      "magnitude": 2.7009999752044678,
+      "radial_flow": -0.89,
+      "zoom_factor": 0.8650000095367432,
+      "feature_matches": 69
+    },
+    {
+      "frame": 216,
+      "timestamp": 7.2,
+      "type": "zoom_in",
+      "magnitude": 2.805999994277954,
+      "radial_flow": 1.887,
+      "zoom_factor": 1.1399999856948853,
+      "feature_matches": 61
+    },
+    {
+      "frame": 218,
+      "timestamp": 7.267,
+      "type": "zoom_in",
+      "magnitude": 1.6979999542236328,
+      "radial_flow": 1.012,
+      "zoom_factor": 1.0850000381469727,
+      "feature_matches": 43
+    },
+    {
+      "frame": 244,
+      "timestamp": 8.133,
+      "type": "zoom_out",
+      "magnitude": 1.6069999933242798,
+      "radial_flow": -0.799,
+      "zoom_factor": 0.9200000166893005,
+      "feature_matches": 45
+    },
+    {
+      "frame": 286,
+      "timestamp": 9.533,
+      "type": "zoom_out",
+      "magnitude": 8.611000061035156,
+      "radial_flow": -0.855,
+      "zoom_factor": 0.5690000057220459,
+      "feature_matches": 31
+    },
+    {
+      "frame": 288,
+      "timestamp": 9.6,
+      "type": "zoom_in",
+      "magnitude": 7.133999824523926,
+      "radial_flow": 2.207,
+      "zoom_factor": 1.3569999933242798,
+      "feature_matches": 46
+    },
+    {
+      "frame": 290,
+      "timestamp": 9.667,
+      "type": "zoom_in",
+      "magnitude": 5.117000102996826,
+      "radial_flow": 1.466,
+      "zoom_factor": 1.25600004196167,
+      "feature_matches": 64
+    },
+    {
+      "frame": 292,
+      "timestamp": 9.733,
+      "type": "zoom_in",
+      "magnitude": 3.078000068664551,
+      "radial_flow": 0.614,
+      "zoom_factor": 1.1540000438690186,
+      "feature_matches": 62
+    },
+    {
+      "frame": 294,
+      "timestamp": 9.8,
+      "type": "zoom_in",
+      "magnitude": 2.115000009536743,
+      "radial_flow": 0.674,
+      "zoom_factor": 1.1059999465942383,
+      "feature_matches": 58
+    },
+    {
+      "frame": 296,
+      "timestamp": 9.867,
+      "type": "zoom_in",
+      "magnitude": 4.830999851226807,
+      "radial_flow": 1.389,
+      "zoom_factor": 1.2419999837875366,
+      "feature_matches": 66
+    },
+    {
+      "frame": 346,
+      "timestamp": 11.533,
+      "type": "pan",
+      "magnitude": 3.8940000534057617,
+      "radial_flow": -0.036,
+      "zoom_factor": 1.0,
+      "feature_matches": 41
+    },
+    {
+      "frame": 350,
+      "timestamp": 11.667,
+      "type": "zoom_in",
+      "magnitude": 3.0820000171661377,
+      "radial_flow": 0.815,
+      "zoom_factor": 1.1540000438690186,
+      "feature_matches": 44
+    },
+    {
+      "frame": 352,
+      "timestamp": 11.733,
+      "type": "pan",
+      "magnitude": 2.431999921798706,
+      "radial_flow": 0.284,
+      "zoom_factor": 1.0,
+      "feature_matches": 70
+    },
+    {
+      "frame": 354,
+      "timestamp": 11.8,
+      "type": "pan",
+      "magnitude": 1.6030000448226929,
+      "radial_flow": 0.214,
+      "zoom_factor": 1.0,
+      "feature_matches": 78
+    },
+    {
+      "frame": 372,
+      "timestamp": 12.4,
+      "type": "pan",
+      "magnitude": 1.6200000047683716,
+      "radial_flow": 0.294,
+      "zoom_factor": 1.0,
+      "feature_matches": 79
+    },
+    {
+      "frame": 374,
+      "timestamp": 12.467,
+      "type": "pan",
+      "magnitude": 3.315000057220459,
+      "radial_flow": 0.473,
+      "zoom_factor": 1.0,
+      "feature_matches": 80
+    },
+    {
+      "frame": 376,
+      "timestamp": 12.533,
+      "type": "pan",
+      "magnitude": 4.684000015258789,
+      "radial_flow": 0.242,
+      "zoom_factor": 1.0,
+      "feature_matches": 20
+    },
+    {
+      "frame": 378,
+      "timestamp": 12.6,
+      "type": "zoom_in",
+      "magnitude": 5.894999980926514,
+      "radial_flow": 0.937,
+      "zoom_factor": 1.2949999570846558,
+      "feature_matches": 26
+    },
+    {
+      "frame": 380,
+      "timestamp": 12.667,
+      "type": "zoom_out",
+      "magnitude": 7.000999927520752,
+      "radial_flow": -1.871,
+      "zoom_factor": 0.6499999761581421,
+      "feature_matches": 37
+    },
+    {
+      "frame": 382,
+      "timestamp": 12.733,
+      "type": "pan",
+      "magnitude": 7.520999908447266,
+      "radial_flow": -0.263,
+      "zoom_factor": 1.0,
+      "feature_matches": 41
+    },
+    {
+      "frame": 384,
+      "timestamp": 12.8,
+      "type": "zoom_in",
+      "magnitude": 6.0920000076293945,
+      "radial_flow": 0.89,
+      "zoom_factor": 1.3049999475479126,
+      "feature_matches": 42
+    },
+    {
+      "frame": 386,
+      "timestamp": 12.867,
+      "type": "pan",
+      "magnitude": 3.1989998817443848,
+      "radial_flow": 0.198,
+      "zoom_factor": 1.0,
+      "feature_matches": 43
+    },
+    {
+      "frame": 388,
+      "timestamp": 12.933,
+      "type": "zoom_in",
+      "magnitude": 2.0450000762939453,
+      "radial_flow": 0.588,
+      "zoom_factor": 1.1019999980926514,
+      "feature_matches": 59
+    },
+    {
+      "frame": 402,
+      "timestamp": 13.4,
+      "type": "pan",
+      "magnitude": 2.0329999923706055,
+      "radial_flow": -0.128,
+      "zoom_factor": 1.0,
+      "feature_matches": 37
+    },
+    {
+      "frame": 404,
+      "timestamp": 13.467,
+      "type": "zoom_out",
+      "magnitude": 16.302000045776367,
+      "radial_flow": -3.145,
+      "zoom_factor": 0.1850000023841858,
+      "feature_matches": 35
+    },
+    {
+      "frame": 406,
+      "timestamp": 13.533,
+      "type": "zoom_out",
+      "magnitude": 5.603000164031982,
+      "radial_flow": -1.776,
+      "zoom_factor": 0.7200000286102295,
+      "feature_matches": 58
+    },
+    {
+      "frame": 408,
+      "timestamp": 13.6,
+      "type": "zoom_out",
+      "magnitude": 3.513000011444092,
+      "radial_flow": -1.149,
+      "zoom_factor": 0.8240000009536743,
+      "feature_matches": 71
+    },
+    {
+      "frame": 410,
+      "timestamp": 13.667,
+      "type": "pan",
+      "magnitude": 2.052999973297119,
+      "radial_flow": -0.457,
+      "zoom_factor": 1.0,
+      "feature_matches": 75
+    },
+    {
+      "frame": 422,
+      "timestamp": 14.067,
+      "type": "pan",
+      "magnitude": 1.593000054359436,
+      "radial_flow": 0.387,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 424,
+      "timestamp": 14.133,
+      "type": "pan",
+      "magnitude": 1.9910000562667847,
+      "radial_flow": 0.453,
+      "zoom_factor": 1.0,
+      "feature_matches": 75
+    },
+    {
+      "frame": 426,
+      "timestamp": 14.2,
+      "type": "zoom_in",
+      "magnitude": 3.071000099182129,
+      "radial_flow": 0.888,
+      "zoom_factor": 1.1540000438690186,
+      "feature_matches": 70
+    },
+    {
+      "frame": 428,
+      "timestamp": 14.267,
+      "type": "zoom_in",
+      "magnitude": 4.864999771118164,
+      "radial_flow": 1.68,
+      "zoom_factor": 1.2430000305175781,
+      "feature_matches": 71
+    },
+    {
+      "frame": 430,
+      "timestamp": 14.333,
+      "type": "zoom_in",
+      "magnitude": 6.26200008392334,
+      "radial_flow": 3.115,
+      "zoom_factor": 1.312999963760376,
+      "feature_matches": 63
+    },
+    {
+      "frame": 432,
+      "timestamp": 14.4,
+      "type": "zoom_in",
+      "magnitude": 3.190999984741211,
+      "radial_flow": 1.568,
+      "zoom_factor": 1.159999966621399,
+      "feature_matches": 71
+    },
+    {
+      "frame": 434,
+      "timestamp": 14.467,
+      "type": "zoom_in",
+      "magnitude": 1.7710000276565552,
+      "radial_flow": 0.76,
+      "zoom_factor": 1.0889999866485596,
+      "feature_matches": 68
+    },
+    {
+      "frame": 452,
+      "timestamp": 15.067,
+      "type": "zoom_out",
+      "magnitude": 3.2339999675750732,
+      "radial_flow": -1.827,
+      "zoom_factor": 0.8379999995231628,
+      "feature_matches": 56
+    },
+    {
+      "frame": 454,
+      "timestamp": 15.133,
+      "type": "zoom_out",
+      "magnitude": 2.7829999923706055,
+      "radial_flow": -0.889,
+      "zoom_factor": 0.8610000014305115,
+      "feature_matches": 64
+    },
+    {
+      "frame": 456,
+      "timestamp": 15.2,
+      "type": "zoom_out",
+      "magnitude": 2.2769999504089355,
+      "radial_flow": -0.617,
+      "zoom_factor": 0.8859999775886536,
+      "feature_matches": 66
+    },
+    {
+      "frame": 458,
+      "timestamp": 15.267,
+      "type": "pan",
+      "magnitude": 1.5959999561309814,
+      "radial_flow": -0.316,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 478,
+      "timestamp": 15.933,
+      "type": "pan",
+      "magnitude": 1.8509999513626099,
+      "radial_flow": 0.113,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 480,
+      "timestamp": 16.0,
+      "type": "zoom_in",
+      "magnitude": 2.744999885559082,
+      "radial_flow": 0.504,
+      "zoom_factor": 1.1369999647140503,
+      "feature_matches": 74
+    },
+    {
+      "frame": 482,
+      "timestamp": 16.067,
+      "type": "zoom_in",
+      "magnitude": 3.063999891281128,
+      "radial_flow": 0.968,
+      "zoom_factor": 1.152999997138977,
+      "feature_matches": 66
+    },
+    {
+      "frame": 484,
+      "timestamp": 16.133,
+      "type": "zoom_in",
+      "magnitude": 2.5290000438690186,
+      "radial_flow": 0.575,
+      "zoom_factor": 1.1260000467300415,
+      "feature_matches": 76
+    },
+    {
+      "frame": 486,
+      "timestamp": 16.2,
+      "type": "pan",
+      "magnitude": 2.7690000534057617,
+      "radial_flow": -0.25,
+      "zoom_factor": 1.0,
+      "feature_matches": 57
+    },
+    {
+      "frame": 488,
+      "timestamp": 16.267,
+      "type": "pan",
+      "magnitude": 2.1070001125335693,
+      "radial_flow": -0.197,
+      "zoom_factor": 1.0,
+      "feature_matches": 53
+    },
+    {
+      "frame": 490,
+      "timestamp": 16.333,
+      "type": "pan",
+      "magnitude": 1.7589999437332153,
+      "radial_flow": -0.224,
+      "zoom_factor": 1.0,
+      "feature_matches": 64
+    },
+    {
+      "frame": 530,
+      "timestamp": 17.667,
+      "type": "pan",
+      "magnitude": 1.5490000247955322,
+      "radial_flow": 0.239,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 532,
+      "timestamp": 17.733,
+      "type": "pan",
+      "magnitude": 2.821000099182129,
+      "radial_flow": 0.481,
+      "zoom_factor": 1.0,
+      "feature_matches": 68
+    },
+    {
+      "frame": 534,
+      "timestamp": 17.8,
+      "type": "pan",
+      "magnitude": 1.5709999799728394,
+      "radial_flow": 0.472,
+      "zoom_factor": 1.0,
+      "feature_matches": 75
+    },
+    {
+      "frame": 536,
+      "timestamp": 17.867,
+      "type": "pan",
+      "magnitude": 2.2179999351501465,
+      "radial_flow": -0.337,
+      "zoom_factor": 1.0,
+      "feature_matches": 52
+    },
+    {
+      "frame": 538,
+      "timestamp": 17.933,
+      "type": "pan",
+      "magnitude": 1.6109999418258667,
+      "radial_flow": -0.245,
+      "zoom_factor": 1.0,
+      "feature_matches": 38
+    },
+    {
+      "frame": 554,
+      "timestamp": 18.467,
+      "type": "pan",
+      "magnitude": 1.8539999723434448,
+      "radial_flow": -0.13,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 556,
+      "timestamp": 18.533,
+      "type": "pan",
+      "magnitude": 3.0420000553131104,
+      "radial_flow": -0.033,
+      "zoom_factor": 1.0,
+      "feature_matches": 63
+    },
+    {
+      "frame": 558,
+      "timestamp": 18.6,
+      "type": "pan",
+      "magnitude": 6.4029998779296875,
+      "radial_flow": 0.086,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 560,
+      "timestamp": 18.667,
+      "type": "zoom_in",
+      "magnitude": 11.413000106811523,
+      "radial_flow": 1.962,
+      "zoom_factor": 1.5709999799728394,
+      "feature_matches": 29
+    },
+    {
+      "frame": 562,
+      "timestamp": 18.733,
+      "type": "zoom_in",
+      "magnitude": 12.562000274658203,
+      "radial_flow": 1.98,
+      "zoom_factor": 1.628000020980835,
+      "feature_matches": 22
+    },
+    {
+      "frame": 564,
+      "timestamp": 18.8,
+      "type": "pan",
+      "magnitude": 9.008000373840332,
+      "radial_flow": 0.022,
+      "zoom_factor": 1.0,
+      "feature_matches": 65
+    },
+    {
+      "frame": 566,
+      "timestamp": 18.867,
+      "type": "pan",
+      "magnitude": 5.425000190734863,
+      "radial_flow": -0.28,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 568,
+      "timestamp": 18.933,
+      "type": "pan",
+      "magnitude": 3.2980000972747803,
+      "radial_flow": -0.365,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 570,
+      "timestamp": 19.0,
+      "type": "pan",
+      "magnitude": 2.388000011444092,
+      "radial_flow": -0.37,
+      "zoom_factor": 1.0,
+      "feature_matches": 70
+    },
+    {
+      "frame": 572,
+      "timestamp": 19.067,
+      "type": "pan",
+      "magnitude": 1.7109999656677246,
+      "radial_flow": -0.365,
+      "zoom_factor": 1.0,
+      "feature_matches": 60
+    },
+    {
+      "frame": 592,
+      "timestamp": 19.733,
+      "type": "pan",
+      "magnitude": 1.7359999418258667,
+      "radial_flow": -0.328,
+      "zoom_factor": 1.0,
+      "feature_matches": 70
+    },
+    {
+      "frame": 594,
+      "timestamp": 19.8,
+      "type": "pan",
+      "magnitude": 1.8880000114440918,
+      "radial_flow": -0.352,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 596,
+      "timestamp": 19.867,
+      "type": "pan",
+      "magnitude": 2.127000093460083,
+      "radial_flow": -0.338,
+      "zoom_factor": 1.0,
+      "feature_matches": 65
+    },
+    {
+      "frame": 598,
+      "timestamp": 19.933,
+      "type": "pan",
+      "magnitude": 2.4539999961853027,
+      "radial_flow": -0.461,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 600,
+      "timestamp": 20.0,
+      "type": "zoom_out",
+      "magnitude": 2.617000102996826,
+      "radial_flow": -0.518,
+      "zoom_factor": 0.8690000176429749,
+      "feature_matches": 65
+    },
+    {
+      "frame": 602,
+      "timestamp": 20.067,
+      "type": "zoom_out",
+      "magnitude": 3.0829999446868896,
+      "radial_flow": -0.575,
+      "zoom_factor": 0.8460000157356262,
+      "feature_matches": 62
+    },
+    {
+      "frame": 604,
+      "timestamp": 20.133,
+      "type": "zoom_out",
+      "magnitude": 3.5429999828338623,
+      "radial_flow": -0.759,
+      "zoom_factor": 0.8230000138282776,
+      "feature_matches": 59
+    },
+    {
+      "frame": 606,
+      "timestamp": 20.2,
+      "type": "zoom_out",
+      "magnitude": 4.0879998207092285,
+      "radial_flow": -1.142,
+      "zoom_factor": 0.7960000038146973,
+      "feature_matches": 62
+    },
+    {
+      "frame": 608,
+      "timestamp": 20.267,
+      "type": "zoom_out",
+      "magnitude": 4.223999977111816,
+      "radial_flow": -1.251,
+      "zoom_factor": 0.7889999747276306,
+      "feature_matches": 45
+    },
+    {
+      "frame": 610,
+      "timestamp": 20.333,
+      "type": "zoom_out",
+      "magnitude": 4.918000221252441,
+      "radial_flow": -1.564,
+      "zoom_factor": 0.7540000081062317,
+      "feature_matches": 49
+    },
+    {
+      "frame": 612,
+      "timestamp": 20.4,
+      "type": "zoom_out",
+      "magnitude": 4.525000095367432,
+      "radial_flow": -1.919,
+      "zoom_factor": 0.7739999890327454,
+      "feature_matches": 52
+    },
+    {
+      "frame": 614,
+      "timestamp": 20.467,
+      "type": "zoom_out",
+      "magnitude": 4.330999851226807,
+      "radial_flow": -1.813,
+      "zoom_factor": 0.7829999923706055,
+      "feature_matches": 37
+    },
+    {
+      "frame": 656,
+      "timestamp": 21.867,
+      "type": "zoom_out",
+      "magnitude": 1.5169999599456787,
+      "radial_flow": -0.559,
+      "zoom_factor": 0.9240000247955322,
+      "feature_matches": 73
+    },
+    {
+      "frame": 658,
+      "timestamp": 21.933,
+      "type": "zoom_out",
+      "magnitude": 2.2309999465942383,
+      "radial_flow": -0.845,
+      "zoom_factor": 0.8880000114440918,
+      "feature_matches": 70
+    },
+    {
+      "frame": 660,
+      "timestamp": 22.0,
+      "type": "zoom_out",
+      "magnitude": 3.3580000400543213,
+      "radial_flow": -1.162,
+      "zoom_factor": 0.8320000171661377,
+      "feature_matches": 65
+    },
+    {
+      "frame": 662,
+      "timestamp": 22.067,
+      "type": "zoom_out",
+      "magnitude": 4.60699987411499,
+      "radial_flow": -2.231,
+      "zoom_factor": 0.7699999809265137,
+      "feature_matches": 57
+    },
+    {
+      "frame": 664,
+      "timestamp": 22.133,
+      "type": "zoom_out",
+      "magnitude": 4.5320000648498535,
+      "radial_flow": -2.474,
+      "zoom_factor": 0.7730000019073486,
+      "feature_matches": 58
+    },
+    {
+      "frame": 666,
+      "timestamp": 22.2,
+      "type": "zoom_out",
+      "magnitude": 2.007999897003174,
+      "radial_flow": -1.001,
+      "zoom_factor": 0.8999999761581421,
+      "feature_matches": 65
+    },
+    {
+      "frame": 704,
+      "timestamp": 23.467,
+      "type": "zoom_in",
+      "magnitude": 2.1410000324249268,
+      "radial_flow": 1.071,
+      "zoom_factor": 1.1069999933242798,
+      "feature_matches": 77
+    },
+    {
+      "frame": 706,
+      "timestamp": 23.533,
+      "type": "zoom_in",
+      "magnitude": 5.324999809265137,
+      "radial_flow": 3.035,
+      "zoom_factor": 1.2660000324249268,
+      "feature_matches": 48
+    },
+    {
+      "frame": 708,
+      "timestamp": 23.6,
+      "type": "zoom_in",
+      "magnitude": 5.381999969482422,
+      "radial_flow": 3.154,
+      "zoom_factor": 1.2690000534057617,
+      "feature_matches": 62
+    },
+    {
+      "frame": 710,
+      "timestamp": 23.667,
+      "type": "zoom_in",
+      "magnitude": 1.8519999980926514,
+      "radial_flow": 1.058,
+      "zoom_factor": 1.093000054359436,
+      "feature_matches": 73
+    },
+    {
+      "frame": 718,
+      "timestamp": 23.933,
+      "type": "zoom_out",
+      "magnitude": 2.2690000534057617,
+      "radial_flow": -0.758,
+      "zoom_factor": 0.8870000243186951,
+      "feature_matches": 58
+    },
+    {
+      "frame": 720,
+      "timestamp": 24.0,
+      "type": "zoom_out",
+      "magnitude": 5.284999847412109,
+      "radial_flow": -0.802,
+      "zoom_factor": 0.7360000014305115,
+      "feature_matches": 57
+    },
+    {
+      "frame": 722,
+      "timestamp": 24.067,
+      "type": "zoom_out",
+      "magnitude": 5.728000164031982,
+      "radial_flow": -2.96,
+      "zoom_factor": 0.7139999866485596,
+      "feature_matches": 36
+    },
+    {
+      "frame": 724,
+      "timestamp": 24.133,
+      "type": "zoom_out",
+      "magnitude": 4.311999797821045,
+      "radial_flow": -1.264,
+      "zoom_factor": 0.7839999794960022,
+      "feature_matches": 65
+    },
+    {
+      "frame": 726,
+      "timestamp": 24.2,
+      "type": "zoom_out",
+      "magnitude": 3.0220000743865967,
+      "radial_flow": -0.801,
+      "zoom_factor": 0.8489999771118164,
+      "feature_matches": 60
+    },
+    {
+      "frame": 728,
+      "timestamp": 24.267,
+      "type": "pan",
+      "magnitude": 2.121000051498413,
+      "radial_flow": -0.47,
+      "zoom_factor": 1.0,
+      "feature_matches": 66
+    },
+    {
+      "frame": 730,
+      "timestamp": 24.333,
+      "type": "pan",
+      "magnitude": 1.5789999961853027,
+      "radial_flow": -0.348,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 760,
+      "timestamp": 25.333,
+      "type": "zoom_in",
+      "magnitude": 1.680999994277954,
+      "radial_flow": 0.979,
+      "zoom_factor": 1.0839999914169312,
+      "feature_matches": 80
+    },
+    {
+      "frame": 762,
+      "timestamp": 25.4,
+      "type": "zoom_in",
+      "magnitude": 2.7360000610351562,
+      "radial_flow": 1.758,
+      "zoom_factor": 1.1369999647140503,
+      "feature_matches": 79
+    },
+    {
+      "frame": 764,
+      "timestamp": 25.467,
+      "type": "zoom_in",
+      "magnitude": 3.9609999656677246,
+      "radial_flow": 2.633,
+      "zoom_factor": 1.1979999542236328,
+      "feature_matches": 80
+    },
+    {
+      "frame": 766,
+      "timestamp": 25.533,
+      "type": "zoom_in",
+      "magnitude": 5.4029998779296875,
+      "radial_flow": 3.487,
+      "zoom_factor": 1.2699999809265137,
+      "feature_matches": 73
+    },
+    {
+      "frame": 768,
+      "timestamp": 25.6,
+      "type": "zoom_in",
+      "magnitude": 6.580999851226807,
+      "radial_flow": 3.18,
+      "zoom_factor": 1.3289999961853027,
+      "feature_matches": 78
+    },
+    {
+      "frame": 770,
+      "timestamp": 25.667,
+      "type": "zoom_in",
+      "magnitude": 6.690000057220459,
+      "radial_flow": 3.29,
+      "zoom_factor": 1.3350000381469727,
+      "feature_matches": 69
+    },
+    {
+      "frame": 772,
+      "timestamp": 25.733,
+      "type": "zoom_in",
+      "magnitude": 6.438000202178955,
+      "radial_flow": 2.811,
+      "zoom_factor": 1.3220000267028809,
+      "feature_matches": 71
+    },
+    {
+      "frame": 774,
+      "timestamp": 25.8,
+      "type": "zoom_in",
+      "magnitude": 5.23799991607666,
+      "radial_flow": 2.043,
+      "zoom_factor": 1.2619999647140503,
+      "feature_matches": 55
+    },
+    {
+      "frame": 776,
+      "timestamp": 25.867,
+      "type": "zoom_in",
+      "magnitude": 4.136000156402588,
+      "radial_flow": 1.42,
+      "zoom_factor": 1.2070000171661377,
+      "feature_matches": 73
+    },
+    {
+      "frame": 778,
+      "timestamp": 25.933,
+      "type": "zoom_in",
+      "magnitude": 3.190000057220459,
+      "radial_flow": 1.003,
+      "zoom_factor": 1.159000039100647,
+      "feature_matches": 66
+    },
+    {
+      "frame": 780,
+      "timestamp": 26.0,
+      "type": "zoom_in",
+      "magnitude": 2.565999984741211,
+      "radial_flow": 0.783,
+      "zoom_factor": 1.128000020980835,
+      "feature_matches": 72
+    },
+    {
+      "frame": 782,
+      "timestamp": 26.067,
+      "type": "pan",
+      "magnitude": 1.968000054359436,
+      "radial_flow": 0.485,
+      "zoom_factor": 1.0,
+      "feature_matches": 60
+    },
+    {
+      "frame": 794,
+      "timestamp": 26.467,
+      "type": "zoom_in",
+      "magnitude": 5.883999824523926,
+      "radial_flow": 1.776,
+      "zoom_factor": 1.2940000295639038,
+      "feature_matches": 64
+    },
+    {
+      "frame": 796,
+      "timestamp": 26.533,
+      "type": "zoom_in",
+      "magnitude": 9.10200023651123,
+      "radial_flow": 3.141,
+      "zoom_factor": 1.4550000429153442,
+      "feature_matches": 72
+    },
+    {
+      "frame": 798,
+      "timestamp": 26.6,
+      "type": "zoom_in",
+      "magnitude": 8.572999954223633,
+      "radial_flow": 3.166,
+      "zoom_factor": 1.4290000200271606,
+      "feature_matches": 74
+    },
+    {
+      "frame": 800,
+      "timestamp": 26.667,
+      "type": "zoom_in",
+      "magnitude": 4.769000053405762,
+      "radial_flow": 1.259,
+      "zoom_factor": 1.2380000352859497,
+      "feature_matches": 68
+    },
+    {
+      "frame": 802,
+      "timestamp": 26.733,
+      "type": "pan",
+      "magnitude": 2.8369998931884766,
+      "radial_flow": 0.133,
+      "zoom_factor": 1.0,
+      "feature_matches": 69
+    },
+    {
+      "frame": 804,
+      "timestamp": 26.8,
+      "type": "pan",
+      "magnitude": 1.8350000381469727,
+      "radial_flow": 0.315,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 822,
+      "timestamp": 27.4,
+      "type": "zoom_out",
+      "magnitude": 2.061000108718872,
+      "radial_flow": -0.949,
+      "zoom_factor": 0.8970000147819519,
+      "feature_matches": 68
+    },
+    {
+      "frame": 824,
+      "timestamp": 27.467,
+      "type": "zoom_out",
+      "magnitude": 5.281000137329102,
+      "radial_flow": -3.304,
+      "zoom_factor": 0.7360000014305115,
+      "feature_matches": 60
+    },
+    {
+      "frame": 826,
+      "timestamp": 27.533,
+      "type": "zoom_out",
+      "magnitude": 14.357000350952148,
+      "radial_flow": -2.078,
+      "zoom_factor": 0.28200000524520874,
+      "feature_matches": 34
+    },
+    {
+      "frame": 828,
+      "timestamp": 27.6,
+      "type": "pan",
+      "magnitude": 2.736999988555908,
+      "radial_flow": 0.067,
+      "zoom_factor": 1.0,
+      "feature_matches": 53
+    },
+    {
+      "frame": 846,
+      "timestamp": 28.2,
+      "type": "pan",
+      "magnitude": 1.5889999866485596,
+      "radial_flow": -0.237,
+      "zoom_factor": 1.0,
+      "feature_matches": 81
+    },
+    {
+      "frame": 848,
+      "timestamp": 28.267,
+      "type": "pan",
+      "magnitude": 3.0999999046325684,
+      "radial_flow": -0.423,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 850,
+      "timestamp": 28.333,
+      "type": "pan",
+      "magnitude": 4.9079999923706055,
+      "radial_flow": -0.274,
+      "zoom_factor": 1.0,
+      "feature_matches": 76
+    },
+    {
+      "frame": 852,
+      "timestamp": 28.4,
+      "type": "pan",
+      "magnitude": 4.556000232696533,
+      "radial_flow": 0.173,
+      "zoom_factor": 1.0,
+      "feature_matches": 30
+    },
+    {
+      "frame": 854,
+      "timestamp": 28.467,
+      "type": "pan",
+      "magnitude": 1.6299999952316284,
+      "radial_flow": -0.14,
+      "zoom_factor": 1.0,
+      "feature_matches": 78
+    },
+    {
+      "frame": 874,
+      "timestamp": 29.133,
+      "type": "pan",
+      "magnitude": 1.9809999465942383,
+      "radial_flow": 0.061,
+      "zoom_factor": 1.0,
+      "feature_matches": 68
+    },
+    {
+      "frame": 876,
+      "timestamp": 29.2,
+      "type": "pan",
+      "magnitude": 4.757999897003174,
+      "radial_flow": 0.408,
+      "zoom_factor": 1.0,
+      "feature_matches": 78
+    },
+    {
+      "frame": 878,
+      "timestamp": 29.267,
+      "type": "zoom_in",
+      "magnitude": 7.659999847412109,
+      "radial_flow": 1.24,
+      "zoom_factor": 1.3830000162124634,
+      "feature_matches": 70
+    },
+    {
+      "frame": 880,
+      "timestamp": 29.333,
+      "type": "zoom_in",
+      "magnitude": 5.829999923706055,
+      "radial_flow": 1.057,
+      "zoom_factor": 1.2920000553131104,
+      "feature_matches": 56
+    },
+    {
+      "frame": 882,
+      "timestamp": 29.4,
+      "type": "zoom_in",
+      "magnitude": 3.368000030517578,
+      "radial_flow": 0.586,
+      "zoom_factor": 1.1679999828338623,
+      "feature_matches": 73
+    },
+    {
+      "frame": 898,
+      "timestamp": 29.933,
+      "type": "pan",
+      "magnitude": 1.6009999513626099,
+      "radial_flow": 0.075,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 900,
+      "timestamp": 30.0,
+      "type": "pan",
+      "magnitude": 2.1029999256134033,
+      "radial_flow": 0.098,
+      "zoom_factor": 1.0,
+      "feature_matches": 79
+    },
+    {
+      "frame": 902,
+      "timestamp": 30.067,
+      "type": "pan",
+      "magnitude": 3.812999963760376,
+      "radial_flow": 0.329,
+      "zoom_factor": 1.0,
+      "feature_matches": 73
+    },
+    {
+      "frame": 904,
+      "timestamp": 30.133,
+      "type": "zoom_in",
+      "magnitude": 6.335000038146973,
+      "radial_flow": 0.542,
+      "zoom_factor": 1.3170000314712524,
+      "feature_matches": 57
+    },
+    {
+      "frame": 906,
+      "timestamp": 30.2,
+      "type": "zoom_in",
+      "magnitude": 13.204999923706055,
+      "radial_flow": 0.845,
+      "zoom_factor": 1.659999966621399,
+      "feature_matches": 61
+    },
+    {
+      "frame": 908,
+      "timestamp": 30.267,
+      "type": "pan",
+      "magnitude": 7.263000011444092,
+      "radial_flow": 0.033,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 910,
+      "timestamp": 30.333,
+      "type": "pan",
+      "magnitude": 3.8970000743865967,
+      "radial_flow": -0.426,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 912,
+      "timestamp": 30.4,
+      "type": "pan",
+      "magnitude": 2.244999885559082,
+      "radial_flow": -0.207,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 926,
+      "timestamp": 30.867,
+      "type": "pan",
+      "magnitude": 1.7200000286102295,
+      "radial_flow": -0.058,
+      "zoom_factor": 1.0,
+      "feature_matches": 76
+    },
+    {
+      "frame": 928,
+      "timestamp": 30.933,
+      "type": "pan",
+      "magnitude": 3.3299999237060547,
+      "radial_flow": -0.011,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 930,
+      "timestamp": 31.0,
+      "type": "pan",
+      "magnitude": 6.660999774932861,
+      "radial_flow": -0.087,
+      "zoom_factor": 1.0,
+      "feature_matches": 66
+    },
+    {
+      "frame": 932,
+      "timestamp": 31.067,
+      "type": "pan",
+      "magnitude": 12.35200023651123,
+      "radial_flow": -0.164,
+      "zoom_factor": 1.0,
+      "feature_matches": 56
+    },
+    {
+      "frame": 934,
+      "timestamp": 31.133,
+      "type": "zoom_in",
+      "magnitude": 8.02299976348877,
+      "radial_flow": 1.876,
+      "zoom_factor": 1.4010000228881836,
+      "feature_matches": 48
+    },
+    {
+      "frame": 936,
+      "timestamp": 31.2,
+      "type": "pan",
+      "magnitude": 2.9769999980926514,
+      "radial_flow": 0.168,
+      "zoom_factor": 1.0,
+      "feature_matches": 70
+    },
+    {
+      "frame": 938,
+      "timestamp": 31.267,
+      "type": "pan",
+      "magnitude": 1.9850000143051147,
+      "radial_flow": 0.099,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 956,
+      "timestamp": 31.867,
+      "type": "pan",
+      "magnitude": 2.569000005722046,
+      "radial_flow": -0.027,
+      "zoom_factor": 1.0,
+      "feature_matches": 55
+    },
+    {
+      "frame": 958,
+      "timestamp": 31.933,
+      "type": "pan",
+      "magnitude": 4.340000152587891,
+      "radial_flow": 0.495,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 960,
+      "timestamp": 32.0,
+      "type": "pan",
+      "magnitude": 2.8440001010894775,
+      "radial_flow": 0.14,
+      "zoom_factor": 1.0,
+      "feature_matches": 69
+    },
+    {
+      "frame": 978,
+      "timestamp": 32.6,
+      "type": "pan",
+      "magnitude": 1.5540000200271606,
+      "radial_flow": -0.123,
+      "zoom_factor": 1.0,
+      "feature_matches": 77
+    },
+    {
+      "frame": 980,
+      "timestamp": 32.667,
+      "type": "pan",
+      "magnitude": 2.2939999103546143,
+      "radial_flow": -0.172,
+      "zoom_factor": 1.0,
+      "feature_matches": 69
+    },
+    {
+      "frame": 982,
+      "timestamp": 32.733,
+      "type": "pan",
+      "magnitude": 3.5789999961853027,
+      "radial_flow": 0.284,
+      "zoom_factor": 1.0,
+      "feature_matches": 73
+    },
+    {
+      "frame": 984,
+      "timestamp": 32.8,
+      "type": "zoom_in",
+      "magnitude": 7.895999908447266,
+      "radial_flow": 0.549,
+      "zoom_factor": 1.3949999809265137,
+      "feature_matches": 29
+    },
+    {
+      "frame": 986,
+      "timestamp": 32.867,
+      "type": "pan",
+      "magnitude": 4.625999927520752,
+      "radial_flow": -0.236,
+      "zoom_factor": 1.0,
+      "feature_matches": 78
+    },
+    {
+      "frame": 988,
+      "timestamp": 32.933,
+      "type": "pan",
+      "magnitude": 3.2079999446868896,
+      "radial_flow": -0.216,
+      "zoom_factor": 1.0,
+      "feature_matches": 72
+    },
+    {
+      "frame": 990,
+      "timestamp": 33.0,
+      "type": "pan",
+      "magnitude": 2.48799991607666,
+      "radial_flow": -0.141,
+      "zoom_factor": 1.0,
+      "feature_matches": 66
+    },
+    {
+      "frame": 992,
+      "timestamp": 33.067,
+      "type": "pan",
+      "magnitude": 2.055000066757202,
+      "radial_flow": -0.181,
+      "zoom_factor": 1.0,
+      "feature_matches": 64
+    },
+    {
+      "frame": 994,
+      "timestamp": 33.133,
+      "type": "pan",
+      "magnitude": 1.9739999771118164,
+      "radial_flow": -0.267,
+      "zoom_factor": 1.0,
+      "feature_matches": 65
+    },
+    {
+      "frame": 996,
+      "timestamp": 33.2,
+      "type": "pan",
+      "magnitude": 1.6829999685287476,
+      "radial_flow": -0.237,
+      "zoom_factor": 1.0,
+      "feature_matches": 64
+    },
+    {
+      "frame": 998,
+      "timestamp": 33.267,
+      "type": "pan",
+      "magnitude": 1.5870000123977661,
+      "radial_flow": -0.13,
+      "zoom_factor": 1.0,
+      "feature_matches": 59
+    },
+    {
+      "frame": 1000,
+      "timestamp": 33.333,
+      "type": "pan",
+      "magnitude": 1.5700000524520874,
+      "radial_flow": -0.126,
+      "zoom_factor": 1.0,
+      "feature_matches": 65
+    },
+    {
+      "frame": 1002,
+      "timestamp": 33.4,
+      "type": "pan",
+      "magnitude": 1.5390000343322754,
+      "radial_flow": -0.195,
+      "zoom_factor": 1.0,
+      "feature_matches": 69
+    },
+    {
+      "frame": 1008,
+      "timestamp": 33.6,
+      "type": "pan",
+      "magnitude": 1.5579999685287476,
+      "radial_flow": -0.177,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 1010,
+      "timestamp": 33.667,
+      "type": "pan",
+      "magnitude": 1.5729999542236328,
+      "radial_flow": -0.203,
+      "zoom_factor": 1.0,
+      "feature_matches": 73
+    },
+    {
+      "frame": 1012,
+      "timestamp": 33.733,
+      "type": "pan",
+      "magnitude": 1.7089999914169312,
+      "radial_flow": -0.291,
+      "zoom_factor": 1.0,
+      "feature_matches": 75
+    },
+    {
+      "frame": 1014,
+      "timestamp": 33.8,
+      "type": "pan",
+      "magnitude": 2.311000108718872,
+      "radial_flow": -0.112,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 1016,
+      "timestamp": 33.867,
+      "type": "pan",
+      "magnitude": 1.965999960899353,
+      "radial_flow": -0.176,
+      "zoom_factor": 1.0,
+      "feature_matches": 76
+    },
+    {
+      "frame": 1018,
+      "timestamp": 33.933,
+      "type": "pan",
+      "magnitude": 2.055000066757202,
+      "radial_flow": -0.305,
+      "zoom_factor": 1.0,
+      "feature_matches": 71
+    },
+    {
+      "frame": 1020,
+      "timestamp": 34.0,
+      "type": "pan",
+      "magnitude": 2.197999954223633,
+      "radial_flow": -0.258,
+      "zoom_factor": 1.0,
+      "feature_matches": 75
+    },
+    {
+      "frame": 1022,
+      "timestamp": 34.067,
+      "type": "pan",
+      "magnitude": 2.440000057220459,
+      "radial_flow": -0.267,
+      "zoom_factor": 1.0,
+      "feature_matches": 74
+    },
+    {
+      "frame": 1024,
+      "timestamp": 34.133,
+      "type": "pan",
+      "magnitude": 2.7679998874664307,
+      "radial_flow": -0.267,
+      "zoom_factor": 1.0,
+      "feature_matches": 62
+    },
+    {
+      "frame": 1026,
+      "timestamp": 34.2,
+      "type": "pan",
+      "magnitude": 3.0940001010894775,
+      "radial_flow": -0.131,
+      "zoom_factor": 1.0,
+      "feature_matches": 67
+    },
+    {
+      "frame": 1028,
+      "timestamp": 34.267,
+      "type": "pan",
+      "magnitude": 3.7139999866485596,
+      "radial_flow": 0.103,
+      "zoom_factor": 1.0,
+      "feature_matches": 56
+    },
+    {
+      "frame": 1030,
+      "timestamp": 34.333,
+      "type": "pan",
+      "magnitude": 3.7009999752044678,
+      "radial_flow": -0.077,
+      "zoom_factor": 1.0,
+      "feature_matches": 50
+    },
+    {
+      "frame": 1032,
+      "timestamp": 34.4,
+      "type": "pan",
+      "magnitude": 2.5139999389648438,
+      "radial_flow": -0.198,
+      "zoom_factor": 1.0,
+      "feature_matches": 42
+    },
+    {
+      "frame": 1034,
+      "timestamp": 34.467,
+      "type": "pan",
+      "magnitude": 2.0799999237060547,
+      "radial_flow": -0.148,
+      "zoom_factor": 1.0,
+      "feature_matches": 35
+    }
+  ],
+  "consolidated_movements": [
+    {
+      "frame": 20,
+      "timestamp": 0.667,
+      "type": "zoom_out",
+      "magnitude": 1.5870000123977661,
+      "radial_flow": -1.403,
+      "zoom_factor": 0.925000011920929,
+      "feature_matches": 46,
+      "start_time": 0.667,
+      "end_time": 0.8,
+      "duration": 0.133
+    },
+    {
+      "frame": 72,
+      "timestamp": 2.4,
+      "type": "zoom_in",
+      "magnitude": 3.7100000381469727,
+      "radial_flow": 0.544,
+      "zoom_factor": 1.090999960899353,
+      "feature_matches": 69,
+      "start_time": 2.4,
+      "end_time": 3.067,
+      "duration": 0.6670000000000003
+    },
+    {
+      "frame": 94,
+      "timestamp": 3.133,
+      "type": "pan",
+      "magnitude": 1.5509999990463257,
+      "radial_flow": 0.495,
+      "zoom_factor": 1.0,
+      "feature_matches": 71,
+      "start_time": 3.133,
+      "end_time": 3.133,
+      "duration": 0.0
+    },
+    {
+      "frame": 96,
+      "timestamp": 3.2,
+      "type": "zoom_in",
+      "magnitude": 1.5529999732971191,
+      "radial_flow": 0.68,
+      "zoom_factor": 1.0779999494552612,
+      "feature_matches": 65,
+      "start_time": 3.2,
+      "end_time": 3.2,
+      "duration": 0.0
+    },
+    {
+      "frame": 134,
+      "timestamp": 4.467,
+      "type": "zoom_in",
+      "magnitude": 1.9930000305175781,
+      "radial_flow": 0.979,
+      "zoom_factor": 1.0880000591278076,
+      "feature_matches": 73,
+      "start_time": 4.467,
+      "end_time": 4.8,
+      "duration": 0.3330000000000002
+    },
+    {
+      "frame": 166,
+      "timestamp": 5.533,
+      "type": "pan",
+      "magnitude": 2.4739999771118164,
+      "radial_flow": 0.115,
+      "zoom_factor": 1.0,
+      "feature_matches": 39,
+      "start_time": 5.533,
+      "end_time": 5.533,
+      "duration": 0.0
+    },
+    {
+      "frame": 168,
+      "timestamp": 5.6,
+      "type": "zoom_in",
+      "magnitude": 5.150000095367432,
+      "radial_flow": 0.54,
+      "zoom_factor": 1.2580000162124634,
+      "feature_matches": 58,
+      "start_time": 5.6,
+      "end_time": 5.6,
+      "duration": 0.0
+    },
+    {
+      "frame": 170,
+      "timestamp": 5.667,
+      "type": "pan",
+      "magnitude": 5.822000026702881,
+      "radial_flow": 0.137,
+      "zoom_factor": 1.0,
+      "feature_matches": 69,
+      "start_time": 5.667,
+      "end_time": 6.2,
+      "duration": 0.5330000000000004
+    },
+    {
+      "frame": 188,
+      "timestamp": 6.267,
+      "type": "zoom_in",
+      "magnitude": 4.5269999504089355,
+      "radial_flow": 0.603,
+      "zoom_factor": 1.2259999513626099,
+      "feature_matches": 35,
+      "start_time": 6.267,
+      "end_time": 6.267,
+      "duration": 0.0
+    },
+    {
+      "frame": 190,
+      "timestamp": 6.333,
+      "type": "pan",
+      "magnitude": 3.1519999504089355,
+      "radial_flow": 0.114,
+      "zoom_factor": 1.0,
+      "feature_matches": 43,
+      "start_time": 6.333,
+      "end_time": 6.333,
+      "duration": 0.0
+    },
+    {
+      "frame": 194,
+      "timestamp": 6.467,
+      "type": "zoom_out",
+      "magnitude": 2.7009999752044678,
+      "radial_flow": -0.627,
+      "zoom_factor": 0.8650000095367432,
+      "feature_matches": 11,
+      "start_time": 6.467,
+      "end_time": 6.533,
+      "duration": 0.06600000000000072
+    },
+    {
+      "frame": 216,
+      "timestamp": 7.2,
+      "type": "zoom_in",
+      "magnitude": 2.805999994277954,
+      "radial_flow": 1.887,
+      "zoom_factor": 1.0850000381469727,
+      "feature_matches": 61,
+      "start_time": 7.2,
+      "end_time": 7.267,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 244,
+      "timestamp": 8.133,
+      "type": "zoom_out",
+      "magnitude": 1.6069999933242798,
+      "radial_flow": -0.799,
+      "zoom_factor": 0.9200000166893005,
+      "feature_matches": 45,
+      "start_time": 8.133,
+      "end_time": 8.133,
+      "duration": 0.0
+    },
+    {
+      "frame": 286,
+      "timestamp": 9.533,
+      "type": "zoom_out",
+      "magnitude": 8.611000061035156,
+      "radial_flow": -0.855,
+      "zoom_factor": 0.5690000057220459,
+      "feature_matches": 31,
+      "start_time": 9.533,
+      "end_time": 9.533,
+      "duration": 0.0
+    },
+    {
+      "frame": 288,
+      "timestamp": 9.6,
+      "type": "zoom_in",
+      "magnitude": 7.133999824523926,
+      "radial_flow": 2.207,
+      "zoom_factor": 1.2419999837875366,
+      "feature_matches": 46,
+      "start_time": 9.6,
+      "end_time": 9.867,
+      "duration": 0.26700000000000124
+    },
+    {
+      "frame": 346,
+      "timestamp": 11.533,
+      "type": "pan",
+      "magnitude": 3.8940000534057617,
+      "radial_flow": -0.036,
+      "zoom_factor": 1.0,
+      "feature_matches": 41,
+      "start_time": 11.533,
+      "end_time": 11.533,
+      "duration": 0.0
+    },
+    {
+      "frame": 350,
+      "timestamp": 11.667,
+      "type": "zoom_in",
+      "magnitude": 3.0820000171661377,
+      "radial_flow": 0.815,
+      "zoom_factor": 1.1540000438690186,
+      "feature_matches": 44,
+      "start_time": 11.667,
+      "end_time": 11.667,
+      "duration": 0.0
+    },
+    {
+      "frame": 352,
+      "timestamp": 11.733,
+      "type": "pan",
+      "magnitude": 2.431999921798706,
+      "radial_flow": 0.284,
+      "zoom_factor": 1.0,
+      "feature_matches": 70,
+      "start_time": 11.733,
+      "end_time": 11.8,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 372,
+      "timestamp": 12.4,
+      "type": "pan",
+      "magnitude": 4.684000015258789,
+      "radial_flow": 0.294,
+      "zoom_factor": 1.0,
+      "feature_matches": 79,
+      "start_time": 12.4,
+      "end_time": 12.533,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 378,
+      "timestamp": 12.6,
+      "type": "zoom_in",
+      "magnitude": 5.894999980926514,
+      "radial_flow": 0.937,
+      "zoom_factor": 1.2949999570846558,
+      "feature_matches": 26,
+      "start_time": 12.6,
+      "end_time": 12.6,
+      "duration": 0.0
+    },
+    {
+      "frame": 380,
+      "timestamp": 12.667,
+      "type": "zoom_out",
+      "magnitude": 7.000999927520752,
+      "radial_flow": -1.871,
+      "zoom_factor": 0.6499999761581421,
+      "feature_matches": 37,
+      "start_time": 12.667,
+      "end_time": 12.667,
+      "duration": 0.0
+    },
+    {
+      "frame": 382,
+      "timestamp": 12.733,
+      "type": "pan",
+      "magnitude": 7.520999908447266,
+      "radial_flow": -0.263,
+      "zoom_factor": 1.0,
+      "feature_matches": 41,
+      "start_time": 12.733,
+      "end_time": 12.733,
+      "duration": 0.0
+    },
+    {
+      "frame": 384,
+      "timestamp": 12.8,
+      "type": "zoom_in",
+      "magnitude": 6.0920000076293945,
+      "radial_flow": 0.89,
+      "zoom_factor": 1.3049999475479126,
+      "feature_matches": 42,
+      "start_time": 12.8,
+      "end_time": 12.8,
+      "duration": 0.0
+    },
+    {
+      "frame": 386,
+      "timestamp": 12.867,
+      "type": "pan",
+      "magnitude": 3.1989998817443848,
+      "radial_flow": 0.198,
+      "zoom_factor": 1.0,
+      "feature_matches": 43,
+      "start_time": 12.867,
+      "end_time": 12.867,
+      "duration": 0.0
+    },
+    {
+      "frame": 388,
+      "timestamp": 12.933,
+      "type": "zoom_in",
+      "magnitude": 2.0450000762939453,
+      "radial_flow": 0.588,
+      "zoom_factor": 1.1019999980926514,
+      "feature_matches": 59,
+      "start_time": 12.933,
+      "end_time": 12.933,
+      "duration": 0.0
+    },
+    {
+      "frame": 402,
+      "timestamp": 13.4,
+      "type": "pan",
+      "magnitude": 2.0329999923706055,
+      "radial_flow": -0.128,
+      "zoom_factor": 1.0,
+      "feature_matches": 37,
+      "start_time": 13.4,
+      "end_time": 13.4,
+      "duration": 0.0
+    },
+    {
+      "frame": 404,
+      "timestamp": 13.467,
+      "type": "zoom_out",
+      "magnitude": 16.302000045776367,
+      "radial_flow": -3.145,
+      "zoom_factor": 0.8240000009536743,
+      "feature_matches": 35,
+      "start_time": 13.467,
+      "end_time": 13.6,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 410,
+      "timestamp": 13.667,
+      "type": "pan",
+      "magnitude": 2.052999973297119,
+      "radial_flow": -0.457,
+      "zoom_factor": 1.0,
+      "feature_matches": 75,
+      "start_time": 13.667,
+      "end_time": 14.133,
+      "duration": 0.4659999999999993
+    },
+    {
+      "frame": 426,
+      "timestamp": 14.2,
+      "type": "zoom_in",
+      "magnitude": 6.26200008392334,
+      "radial_flow": 0.888,
+      "zoom_factor": 1.0889999866485596,
+      "feature_matches": 70,
+      "start_time": 14.2,
+      "end_time": 14.467,
+      "duration": 0.26700000000000124
+    },
+    {
+      "frame": 452,
+      "timestamp": 15.067,
+      "type": "zoom_out",
+      "magnitude": 3.2339999675750732,
+      "radial_flow": -1.827,
+      "zoom_factor": 0.8859999775886536,
+      "feature_matches": 56,
+      "start_time": 15.067,
+      "end_time": 15.2,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 458,
+      "timestamp": 15.267,
+      "type": "pan",
+      "magnitude": 1.5959999561309814,
+      "radial_flow": -0.316,
+      "zoom_factor": 1.0,
+      "feature_matches": 72,
+      "start_time": 15.267,
+      "end_time": 15.267,
+      "duration": 0.0
+    },
+    {
+      "frame": 478,
+      "timestamp": 15.933,
+      "type": "pan",
+      "magnitude": 1.8509999513626099,
+      "radial_flow": 0.113,
+      "zoom_factor": 1.0,
+      "feature_matches": 71,
+      "start_time": 15.933,
+      "end_time": 15.933,
+      "duration": 0.0
+    },
+    {
+      "frame": 480,
+      "timestamp": 16.0,
+      "type": "zoom_in",
+      "magnitude": 3.063999891281128,
+      "radial_flow": 0.504,
+      "zoom_factor": 1.1260000467300415,
+      "feature_matches": 74,
+      "start_time": 16.0,
+      "end_time": 16.133,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 486,
+      "timestamp": 16.2,
+      "type": "pan",
+      "magnitude": 2.7690000534057617,
+      "radial_flow": -0.25,
+      "zoom_factor": 1.0,
+      "feature_matches": 57,
+      "start_time": 16.2,
+      "end_time": 16.333,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 530,
+      "timestamp": 17.667,
+      "type": "pan",
+      "magnitude": 2.821000099182129,
+      "radial_flow": 0.239,
+      "zoom_factor": 1.0,
+      "feature_matches": 74,
+      "start_time": 17.667,
+      "end_time": 17.933,
+      "duration": 0.26599999999999824
+    },
+    {
+      "frame": 554,
+      "timestamp": 18.467,
+      "type": "pan",
+      "magnitude": 6.4029998779296875,
+      "radial_flow": -0.13,
+      "zoom_factor": 1.0,
+      "feature_matches": 71,
+      "start_time": 18.467,
+      "end_time": 18.6,
+      "duration": 0.13300000000000267
+    },
+    {
+      "frame": 560,
+      "timestamp": 18.667,
+      "type": "zoom_in",
+      "magnitude": 12.562000274658203,
+      "radial_flow": 1.962,
+      "zoom_factor": 1.628000020980835,
+      "feature_matches": 29,
+      "start_time": 18.667,
+      "end_time": 18.733,
+      "duration": 0.06599999999999895
+    },
+    {
+      "frame": 564,
+      "timestamp": 18.8,
+      "type": "pan",
+      "magnitude": 9.008000373840332,
+      "radial_flow": 0.022,
+      "zoom_factor": 1.0,
+      "feature_matches": 65,
+      "start_time": 18.8,
+      "end_time": 19.067,
+      "duration": 0.26699999999999946
+    },
+    {
+      "frame": 592,
+      "timestamp": 19.733,
+      "type": "pan",
+      "magnitude": 2.4539999961853027,
+      "radial_flow": -0.328,
+      "zoom_factor": 1.0,
+      "feature_matches": 70,
+      "start_time": 19.733,
+      "end_time": 19.933,
+      "duration": 0.1999999999999993
+    },
+    {
+      "frame": 600,
+      "timestamp": 20.0,
+      "type": "zoom_out",
+      "magnitude": 4.918000221252441,
+      "radial_flow": -0.518,
+      "zoom_factor": 0.7829999923706055,
+      "feature_matches": 65,
+      "start_time": 20.0,
+      "end_time": 20.467,
+      "duration": 0.46699999999999875
+    },
+    {
+      "frame": 656,
+      "timestamp": 21.867,
+      "type": "zoom_out",
+      "magnitude": 4.60699987411499,
+      "radial_flow": -0.559,
+      "zoom_factor": 0.8999999761581421,
+      "feature_matches": 73,
+      "start_time": 21.867,
+      "end_time": 22.2,
+      "duration": 0.3329999999999984
+    },
+    {
+      "frame": 704,
+      "timestamp": 23.467,
+      "type": "zoom_in",
+      "magnitude": 5.381999969482422,
+      "radial_flow": 1.071,
+      "zoom_factor": 1.093000054359436,
+      "feature_matches": 77,
+      "start_time": 23.467,
+      "end_time": 23.667,
+      "duration": 0.20000000000000284
+    },
+    {
+      "frame": 718,
+      "timestamp": 23.933,
+      "type": "zoom_out",
+      "magnitude": 5.728000164031982,
+      "radial_flow": -0.758,
+      "zoom_factor": 0.8489999771118164,
+      "feature_matches": 58,
+      "start_time": 23.933,
+      "end_time": 24.2,
+      "duration": 0.26699999999999946
+    },
+    {
+      "frame": 728,
+      "timestamp": 24.267,
+      "type": "pan",
+      "magnitude": 2.121000051498413,
+      "radial_flow": -0.47,
+      "zoom_factor": 1.0,
+      "feature_matches": 66,
+      "start_time": 24.267,
+      "end_time": 24.333,
+      "duration": 0.06599999999999895
+    },
+    {
+      "frame": 760,
+      "timestamp": 25.333,
+      "type": "zoom_in",
+      "magnitude": 6.690000057220459,
+      "radial_flow": 0.979,
+      "zoom_factor": 1.128000020980835,
+      "feature_matches": 80,
+      "start_time": 25.333,
+      "end_time": 26.0,
+      "duration": 0.6670000000000016
+    },
+    {
+      "frame": 782,
+      "timestamp": 26.067,
+      "type": "pan",
+      "magnitude": 1.968000054359436,
+      "radial_flow": 0.485,
+      "zoom_factor": 1.0,
+      "feature_matches": 60,
+      "start_time": 26.067,
+      "end_time": 26.067,
+      "duration": 0.0
+    },
+    {
+      "frame": 794,
+      "timestamp": 26.467,
+      "type": "zoom_in",
+      "magnitude": 9.10200023651123,
+      "radial_flow": 1.776,
+      "zoom_factor": 1.2380000352859497,
+      "feature_matches": 64,
+      "start_time": 26.467,
+      "end_time": 26.667,
+      "duration": 0.20000000000000284
+    },
+    {
+      "frame": 802,
+      "timestamp": 26.733,
+      "type": "pan",
+      "magnitude": 2.8369998931884766,
+      "radial_flow": 0.133,
+      "zoom_factor": 1.0,
+      "feature_matches": 69,
+      "start_time": 26.733,
+      "end_time": 26.8,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 822,
+      "timestamp": 27.4,
+      "type": "zoom_out",
+      "magnitude": 14.357000350952148,
+      "radial_flow": -0.949,
+      "zoom_factor": 0.28200000524520874,
+      "feature_matches": 68,
+      "start_time": 27.4,
+      "end_time": 27.533,
+      "duration": 0.13300000000000267
+    },
+    {
+      "frame": 828,
+      "timestamp": 27.6,
+      "type": "pan",
+      "magnitude": 2.736999988555908,
+      "radial_flow": 0.067,
+      "zoom_factor": 1.0,
+      "feature_matches": 53,
+      "start_time": 27.6,
+      "end_time": 27.6,
+      "duration": 0.0
+    },
+    {
+      "frame": 846,
+      "timestamp": 28.2,
+      "type": "pan",
+      "magnitude": 4.9079999923706055,
+      "radial_flow": -0.237,
+      "zoom_factor": 1.0,
+      "feature_matches": 81,
+      "start_time": 28.2,
+      "end_time": 28.467,
+      "duration": 0.26699999999999946
+    },
+    {
+      "frame": 874,
+      "timestamp": 29.133,
+      "type": "pan",
+      "magnitude": 4.757999897003174,
+      "radial_flow": 0.061,
+      "zoom_factor": 1.0,
+      "feature_matches": 68,
+      "start_time": 29.133,
+      "end_time": 29.2,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 878,
+      "timestamp": 29.267,
+      "type": "zoom_in",
+      "magnitude": 7.659999847412109,
+      "radial_flow": 1.24,
+      "zoom_factor": 1.1679999828338623,
+      "feature_matches": 70,
+      "start_time": 29.267,
+      "end_time": 29.4,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 898,
+      "timestamp": 29.933,
+      "type": "pan",
+      "magnitude": 3.812999963760376,
+      "radial_flow": 0.075,
+      "zoom_factor": 1.0,
+      "feature_matches": 72,
+      "start_time": 29.933,
+      "end_time": 30.067,
+      "duration": 0.13400000000000034
+    },
+    {
+      "frame": 904,
+      "timestamp": 30.133,
+      "type": "zoom_in",
+      "magnitude": 13.204999923706055,
+      "radial_flow": 0.542,
+      "zoom_factor": 1.659999966621399,
+      "feature_matches": 57,
+      "start_time": 30.133,
+      "end_time": 30.2,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 908,
+      "timestamp": 30.267,
+      "type": "pan",
+      "magnitude": 12.35200023651123,
+      "radial_flow": 0.033,
+      "zoom_factor": 1.0,
+      "feature_matches": 72,
+      "start_time": 30.267,
+      "end_time": 31.067,
+      "duration": 0.8000000000000007
+    },
+    {
+      "frame": 934,
+      "timestamp": 31.133,
+      "type": "zoom_in",
+      "magnitude": 8.02299976348877,
+      "radial_flow": 1.876,
+      "zoom_factor": 1.4010000228881836,
+      "feature_matches": 48,
+      "start_time": 31.133,
+      "end_time": 31.133,
+      "duration": 0.0
+    },
+    {
+      "frame": 936,
+      "timestamp": 31.2,
+      "type": "pan",
+      "magnitude": 2.9769999980926514,
+      "radial_flow": 0.168,
+      "zoom_factor": 1.0,
+      "feature_matches": 70,
+      "start_time": 31.2,
+      "end_time": 31.267,
+      "duration": 0.06700000000000017
+    },
+    {
+      "frame": 956,
+      "timestamp": 31.867,
+      "type": "pan",
+      "magnitude": 4.340000152587891,
+      "radial_flow": -0.027,
+      "zoom_factor": 1.0,
+      "feature_matches": 55,
+      "start_time": 31.867,
+      "end_time": 32.0,
+      "duration": 0.13299999999999912
+    },
+    {
+      "frame": 978,
+      "timestamp": 32.6,
+      "type": "pan",
+      "magnitude": 3.5789999961853027,
+      "radial_flow": -0.123,
+      "zoom_factor": 1.0,
+      "feature_matches": 77,
+      "start_time": 32.6,
+      "end_time": 32.733,
+      "duration": 0.13299999999999557
+    },
+    {
+      "frame": 984,
+      "timestamp": 32.8,
+      "type": "zoom_in",
+      "magnitude": 7.895999908447266,
+      "radial_flow": 0.549,
+      "zoom_factor": 1.3949999809265137,
+      "feature_matches": 29,
+      "start_time": 32.8,
+      "end_time": 32.8,
+      "duration": 0.0
+    },
+    {
+      "frame": 986,
+      "timestamp": 32.867,
+      "type": "pan",
+      "magnitude": 4.625999927520752,
+      "radial_flow": -0.236,
+      "zoom_factor": 1.0,
+      "feature_matches": 78,
+      "start_time": 32.867,
+      "end_time": 34.467,
+      "duration": 1.6000000000000014
+    }
+  ]
+}

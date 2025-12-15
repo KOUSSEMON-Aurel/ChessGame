@@ -44,11 +44,34 @@ class IndicatorRing extends Node2D:
 		# draw_arc(center, radius, start_angle, end_angle, point_count, color, width)
 		draw_arc(Vector2.ZERO, radius, 0, TAU, 64, color, thickness)
 
+# Classe interne pour le suivi 3D -> 2D
+class IndicatorTracker extends Node2D:
+	var target_3d: Vector3
+	var camera: Camera3D
+	var offset_2d: Vector2
+	
+	func _process(_delta):
+		if is_instance_valid(camera):
+			# Mise à jour continue de la position 2D basée sur la projection 3D
+			position = camera.unproject_position(target_3d) + offset_2d
+
 # Fonction principale de spawn
+# Fonction principale de spawn 2D (Legacy)
 func spawn_indicator_at_pos(pixel_pos: Vector2, type: Type, duration: float = 1.5, offset_corner: Vector2 = Vector2(35, 35)):
-	# 1. Conteneur Principal (Pivot pour l'animation de sortie globale)
 	var pivot = Node2D.new()
 	pivot.position = pixel_pos + Vector2(offset_corner.x, -offset_corner.y)
+	_setup_and_animate(pivot, type, duration)
+
+# Fonction de spawn avec suivi 3D (Nouveau)
+func spawn_indicator_3d(pos_3d: Vector3, camera: Camera3D, type: Type, duration: float = 1.5, offset_corner: Vector2 = Vector2(35, 35)):
+	var pivot = IndicatorTracker.new()
+	pivot.target_3d = pos_3d
+	pivot.camera = camera
+	pivot.offset_2d = Vector2(offset_corner.x, -offset_corner.y)
+	pivot.position = camera.unproject_position(pos_3d) + pivot.offset_2d # Pos initiale
+	_setup_and_animate(pivot, type, duration)
+
+func _setup_and_animate(pivot: Node2D, type: Type, duration: float):
 	pivot.z_index = 101
 	add_child(pivot)
 	
