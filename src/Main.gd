@@ -357,7 +357,7 @@ func _on_start_menu_confirmed(mode_opt, color_opt, win_opt):
 		start_game_logic(true) # White starts
 
 func start_game_logic(player_is_white = true):
-	print("[MAIN] start_game_logic appelé, game_mode=", game_mode)
+	# print("[MAIN] start_game_logic appelé, game_mode=", game_mode)
 	state = IDLE
 	handle_state(NEW_GAME, player_is_white)
 
@@ -444,9 +444,9 @@ func handle_state(event, msg = ""):
 							handle_state(CONNECT)
 					elif game_mode == 1:
 						# alert("White to begin")
-						print("[MAIN] PvP: White to begin")
+						# print("[MAIN] PvP: White to begin")
 						state = PLAYER_TURN
-						print("[MAIN] État changé à PLAYER_TURN, state=", state)
+						# print("[MAIN] État changé à PLAYER_TURN, state=", state)
 		CONNECTING:
 			match event:
 				DONE:
@@ -866,7 +866,7 @@ func mouse_entered():
 
 
 func piece_clicked(piece):
-	print("[MAIN] piece_clicked appelé - game_mode=", game_mode, " state=", state, " PLAYER_TURN=", PLAYER_TURN)
+	# print("[MAIN] piece_clicked appelé - game_mode=", game_mode, " state=", state, " PLAYER_TURN=", PLAYER_TURN)
 	
 	# ═══════════════════════════════════════════════════════════════════════════════
 	# BLOCAGE INTERACTION IA : Empêcher le joueur de toucher les pièces de l'IA
@@ -909,9 +909,9 @@ func piece_clicked(piece):
 
 
 func piece_unclicked(piece):
-	print("DEBUG: piece_unclicked for ", piece.key)
+	# print("DEBUG: piece_unclicked for ", piece.key)
 	if selected_piece == null:
-		print("DEBUG: selected_piece is null, returning")
+		# print("DEBUG: selected_piece is null, returning")
 		return
 	board.clear_hints()
 	show_transport_buttons(false)
@@ -919,16 +919,16 @@ func piece_unclicked(piece):
 
 
 func try_to_make_a_move(piece: Piece, non_player_move = true):
-	print("DEBUG: try_to_make_a_move ", piece.key, " non_player=", non_player_move)
+	# print("DEBUG: try_to_make_a_move ", piece.key, " non_player=", non_player_move)
 	if not non_player_move:
 		if state != PLAYER_TURN:
-			print("DEBUG: Not player turn, returning piece")
+			# print("DEBUG: Not player turn, returning piece")
 			board.return_piece(piece)
 			return
 		var is_white_turn = white_next
 		var piece_is_white = piece.side == "W"
 		if is_white_turn != piece_is_white:
-			print("DEBUG: Wrong turn color, returning piece")
+			# print("DEBUG: Wrong turn color, returning piece")
 			board.return_piece(piece)
 			return
 
@@ -1010,23 +1010,23 @@ func return_piece(piece: Piece):
 		
 		# Promotion Logic
 		if piece.key == "P":
-			print("DEBUG: return_piece called for Pawn. Side=", piece.side, " pos=", piece.pos, " new_pos=", piece.new_pos)
+			# print("DEBUG: return_piece called for Pawn. Side=", piece.side, " pos=", piece.pos, " new_pos=", piece.new_pos)
 			var on_promo_rank = (piece.side == "B" and piece.pos.y == 7) or (piece.side == "W" and piece.pos.y == 0)
-			print("DEBUG: on_promo_rank=", on_promo_rank, " (B needs y=7, W needs y=0)")
+			# print("DEBUG: on_promo_rank=", on_promo_rank, " (B needs y=7, W needs y=0)")
 			if on_promo_rank:
 				# CHECK: Is Promotion Rule active?
-				print("DEBUG: Pawn at end! Side=", piece.side, " PosY=", piece.pos.y, " Enabled=", promotion_enabled, " PromoteTo='", promote_to, "'")
+				# print("DEBUG: Pawn at end! Side=", piece.side, " PosY=", piece.pos.y, " Enabled=", promotion_enabled, " PromoteTo='", promote_to, "'")
 				if promotion_enabled:
 					if promote_to == "":
 						# Check if AI turn -> Auto Queen
 						if state == ENGINE_TURN or game_mode == 2: # AI vs AI or Engine's move
-							print("DEBUG: AI turn, Auto-promoting to Queen")
+							# print("DEBUG: AI turn, Auto-promoting to Queen")
 							Pieces.promote(piece, "q")
 						else:
 							# Human Player: Show Menu
 							promote.open(piece)
 					else:
-						print("DEBUG: Executing Promotion to ", promote_to)
+						# print("DEBUG: Executing Promotion to ", promote_to)
 						Pieces.promote(piece, promote_to)
 				else:
 					pass

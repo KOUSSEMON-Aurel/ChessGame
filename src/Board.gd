@@ -184,11 +184,11 @@ func play_sound(key):
 
 func _input(event):
 	if event is InputEventMouseButton and event.pressed:
-		print("[BOARD] _input appelé, input_enabled=", input_enabled)
+		pass # print("[BOARD] _input appelé, input_enabled=", input_enabled)
 	
 	# Check if input is disabled (e.g., menu is open)
 	if not input_enabled:
-		print("[BOARD] Input désactivé, abandon")
+		pass # print("[BOARD] Input désactivé, abandon")
 		return
 	
 	if event is InputEventMouseButton:
@@ -284,13 +284,13 @@ func _handle_board_click(x, y):
 		if hit_pos != null and p.obj:
 			drag_offset = p.obj.position - hit_pos
 		
-		print("DEBUG: Drag start ", p.key)
+		# print("DEBUG: Drag start ", p.key)
 		emit_signal("clicked", p)
 
 func _handle_board_release(x, y):
 	if dragged_piece != null:
 		if x != -1 and y != -1:
-			print("DEBUG: Drag end ", dragged_piece.key, " at ", x, ",", y)
+			# print("DEBUG: Drag end ", dragged_piece.key, " at ", x, ",", y)
 			dragged_piece.new_pos = Vector2(x, y)
 		Pieces.set_piece_drag_state(dragged_piece.obj, false)
 		emit_signal("unclicked", dragged_piece)
@@ -331,7 +331,7 @@ func _get_mouse_hit_on_plane():
 # Added missing functions
 func cancel_drag():
 	if dragged_piece != null:
-		print("DEBUG: Cancelling drag for ", dragged_piece.key)
+		# print("DEBUG: Cancelling drag for ", dragged_piece.key)
 		Pieces.set_piece_drag_state(dragged_piece.obj, false) 
 		return_piece(dragged_piece)
 		dragged_piece = null
@@ -845,7 +845,7 @@ func show_indicator(grid_pos: Vector2, type: MoveIndicator.Type):
 		var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
 		var camera = subviewport.get_node_or_null("Camera3D")
 		if camera:
-			var screen_pos = camera.unproject_position(pos3d)
+
 			# MoveIndicator is child of Board (UI), so coordinates must be local to Board
 			# Board is full screen or margin container?
 			# get_global_transform() ... 
@@ -859,9 +859,8 @@ func show_indicator(grid_pos: Vector2, type: MoveIndicator.Type):
 			# Now we reverse.
 			
 			# Actually, we can just use the same logic as 2D if we didn't destroy existing logical grid mapping
-			# But we want it to align with the 3D visual.
-			
-			move_indicator.spawn_indicator_at_pos(screen_pos, type, 1.5, Vector2(64,64)) # Size dummy
+			var screen_pos_final = camera.unproject_position(pos3d)
+			move_indicator.spawn_indicator_at_pos(screen_pos_final, type, 1.5, Vector2(55, 38))
 	else:
 		push_warning("MoveIndicator not found")
 
