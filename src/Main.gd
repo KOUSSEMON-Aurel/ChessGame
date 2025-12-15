@@ -119,6 +119,9 @@ func _ready():
 	create_start_menu()
 
 func create_start_menu():
+	# Disable board input while menu is open
+	board.input_enabled = false
+	
 	# Overlay transparent covering the whole screen
 	var overlay = Control.new()
 	overlay.name = "StartMenu"
@@ -316,6 +319,9 @@ func _update_level_visibility_color(_index, _level_vbox, _mode_opt):
 
 
 func _on_start_menu_confirmed(mode_opt, color_opt, win_opt):
+	# Re-enable board input now that menu is closing
+	board.input_enabled = true
+	
 	var mode = mode_opt.get_selected_id()
 	var color_idx = color_opt.get_selected_id()
 	var is_white = (color_idx == 0)
@@ -351,6 +357,7 @@ func _on_start_menu_confirmed(mode_opt, color_opt, win_opt):
 		start_game_logic(true) # White starts
 
 func start_game_logic(player_is_white = true):
+	print("[MAIN] start_game_logic appelé, game_mode=", game_mode)
 	state = IDLE
 	handle_state(NEW_GAME, player_is_white)
 
@@ -437,8 +444,9 @@ func handle_state(event, msg = ""):
 							handle_state(CONNECT)
 					elif game_mode == 1:
 						# alert("White to begin")
-						print("White to begin")
+						print("[MAIN] PvP: White to begin")
 						state = PLAYER_TURN
+						print("[MAIN] État changé à PLAYER_TURN, state=", state)
 		CONNECTING:
 			match event:
 				DONE:
@@ -858,6 +866,8 @@ func mouse_entered():
 
 
 func piece_clicked(piece):
+	print("[MAIN] piece_clicked appelé - game_mode=", game_mode, " state=", state, " PLAYER_TURN=", PLAYER_TURN)
+	
 	# ═══════════════════════════════════════════════════════════════════════════════
 	# BLOCAGE INTERACTION IA : Empêcher le joueur de toucher les pièces de l'IA
 	# ═══════════════════════════════════════════════════════════════════════════════

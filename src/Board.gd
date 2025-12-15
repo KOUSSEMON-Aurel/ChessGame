@@ -52,6 +52,9 @@ var mat_hint_risk_yellow: StandardMaterial3D
 var dragged_piece: Piece = null
 var drag_offset: Vector3 = Vector3.ZERO
 
+# Input control - set by Main.gd
+var input_enabled: bool = true
+
 func _ready():
 	# grid will map the pieces in the game
 	grid.resize(num_squares)
@@ -179,7 +182,15 @@ func play_sound(key):
 	if audio_players.has(key) and audio_players[key].stream != null:
 		audio_players[key].play()
 
-func _unhandled_input(event):
+func _input(event):
+	if event is InputEventMouseButton and event.pressed:
+		print("[BOARD] _input appelé, input_enabled=", input_enabled)
+	
+	# Check if input is disabled (e.g., menu is open)
+	if not input_enabled:
+		print("[BOARD] Input désactivé, abandon")
+		return
+	
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			var grid_pos = get_grid_from_mouse()
@@ -213,14 +224,26 @@ func _on_HighlightTimer_timeout():
 	pass
 
 func get_grid_from_mouse() -> Vector2:
-	var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
+	var subviewport_container = get_node_or_null("Container/SubViewportContainer")
+	if not subviewport_container: return Vector2(-1, -1)
+	var subviewport = subviewport_container.get_node_or_null("SubViewport")
 	if not subviewport: return Vector2(-1, -1)
 	var camera = subviewport.get_node_or_null("Camera3D")
 	if not camera: return Vector2(-1, -1)
 	
-	var mouse_pos = get_viewport().get_mouse_position()
-	var from = camera.project_ray_origin(mouse_pos)
-	var dir = camera.project_ray_normal(mouse_pos)
+	# Convertir la position globale de la souris en position locale au SubViewportContainer
+	var global_mouse_pos = get_viewport().get_mouse_position()
+	var local_mouse_pos = global_mouse_pos - subviewport_container.get_global_rect().position
+	
+	# Ajuster pour le ratio entre la taille du container et celle du SubViewport
+	var container_size = subviewport_container.size
+	var viewport_size = subviewport.size
+	if container_size.x > 0 and container_size.y > 0:
+		local_mouse_pos.x = local_mouse_pos.x * viewport_size.x / container_size.x
+		local_mouse_pos.y = local_mouse_pos.y * viewport_size.y / container_size.y
+	
+	var from = camera.project_ray_origin(local_mouse_pos)
+	var dir = camera.project_ray_normal(local_mouse_pos)
 	
 	var n = Vector3(0, 1, 0)
 	var denom = dir.dot(n)
@@ -228,6 +251,9 @@ func get_grid_from_mouse() -> Vector2:
 	
 	var t = -from.dot(n) / denom
 	var hit_pos = from + dir * t
+	
+	# DEBUG: Print pour diagnostiquer
+	# print("[DEBUG] global=", global_mouse_pos, " local=", local_mouse_pos, " hit=", hit_pos)
 	
 	# Find closest tile
 	var best_dist = 99999.0
@@ -253,17 +279,10 @@ func _handle_board_click(x, y):
 		dragged_piece = p
 		Pieces.set_piece_drag_state(p.obj, true)
 		
-		# Drag offset
-		var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
-		if subviewport and p.obj:
-			var camera = subviewport.get_node_or_null("Camera3D")
-			if camera:
-				var mouse_pos = get_viewport().get_mouse_position()
-				var from = camera.project_ray_origin(mouse_pos)
-				var dir = camera.project_ray_normal(mouse_pos)
-				var t = -from.y / dir.y
-				var hit_pos = from + dir * t
-				drag_offset = p.obj.position - hit_pos
+		# Drag offset - utiliser les coordonnées locales
+		var hit_pos = _get_mouse_hit_on_plane()
+		if hit_pos != null and p.obj:
+			drag_offset = p.obj.position - hit_pos
 		
 		print("DEBUG: Drag start ", p.key)
 		emit_signal("clicked", p)
@@ -279,16 +298,35 @@ func _handle_board_release(x, y):
 
 func _handle_mouse_motion():
 	if dragged_piece != null and dragged_piece.obj != null:
-		var subviewport = get_node_or_null("Container/SubViewportContainer/SubViewport")
-		if subviewport:
-			var camera = subviewport.get_node_or_null("Camera3D")
-			if camera:
-				var mouse_pos = get_viewport().get_mouse_position()
-				var from = camera.project_ray_origin(mouse_pos)
-				var dir = camera.project_ray_normal(mouse_pos)
-				var t = -from.y / dir.y
-				var pos3d = from + dir * t
-				dragged_piece.obj.position = pos3d + drag_offset + Vector3(0, 10, 0)
+		var hit_pos = _get_mouse_hit_on_plane()
+		if hit_pos != null:
+			dragged_piece.obj.position = hit_pos + drag_offset + Vector3(0, 10, 0)
+
+# Helper: Obtenir la position 3D de la souris sur le plan Y=0
+func _get_mouse_hit_on_plane():
+	var subviewport_container = get_node_or_null("Container/SubViewportContainer")
+	if not subviewport_container: return null
+	var subviewport = subviewport_container.get_node_or_null("SubViewport")
+	if not subviewport: return null
+	var camera = subviewport.get_node_or_null("Camera3D")
+	if not camera: return null
+	
+	# Convertir en coordonnées locales
+	var global_mouse_pos = get_viewport().get_mouse_position()
+	var local_mouse_pos = global_mouse_pos - subviewport_container.get_global_rect().position
+	
+	var container_size = subviewport_container.size
+	var viewport_size = subviewport.size
+	if container_size.x > 0 and container_size.y > 0:
+		local_mouse_pos.x = local_mouse_pos.x * viewport_size.x / container_size.x
+		local_mouse_pos.y = local_mouse_pos.y * viewport_size.y / container_size.y
+	
+	var from = camera.project_ray_origin(local_mouse_pos)
+	var dir = camera.project_ray_normal(local_mouse_pos)
+	
+	if abs(dir.y) < 0.0001: return null
+	var t = -from.y / dir.y
+	return from + dir * t
 
 # Added missing functions
 func cancel_drag():
