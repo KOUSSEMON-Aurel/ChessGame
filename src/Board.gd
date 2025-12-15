@@ -1,6 +1,7 @@
 extends Control
 
 class_name Board
+# Board script - Force recompile
 
 signal clicked(p)
 signal unclicked(p)
@@ -52,6 +53,7 @@ var mat_hint_risk_yellow: StandardMaterial3D
 var dragged_piece: Piece = null
 var drag_offset: Vector3 = Vector3.ZERO
 var camera_controller: ChessCameraController = null
+var board_effects: BoardEffects = null
 
 # Input control - set by Main.gd
 var input_enabled: bool = true
@@ -114,7 +116,12 @@ func _ready():
 		camera_controller = sub_vp.get_node_or_null("Camera3D") as ChessCameraController
 		if camera_controller:
 			print("✅ Camera Controller initialized in Board")
-
+	
+	# Initialiser le système d'effets visuels
+	board_effects = BoardEffects.new()
+	board_effects.name = "BoardEffects"
+	add_child(board_effects)
+	# Les tiles seront assignées après draw_tiles_3d()
 	
 	draw_tiles_3d()
 	
@@ -403,6 +410,11 @@ func draw_tiles_3d():
 			
 			board_3d_container.add_child(tile)
 			board_tiles_meshes[idx] = tile
+	
+	# Assigner les tiles au système d'effets
+	if board_effects:
+		board_effects.board_tiles = board_tiles_meshes
+		print("✅ Board tiles assigned to BoardEffects (%d tiles)" % board_tiles_meshes.size())
 
 func get_grid_index(x: int, y: int):
 	return x + 8 * y
@@ -618,10 +630,11 @@ func get_3d_pos_from_2d(grid_pos: Vector2) -> Vector3:
 	var camera = subviewport.get_node_or_null("Camera3D")
 	if camera == null: return Vector3.ZERO
 	
-	var offset = square_width / 2.0
+	var width = float(square_width) if square_width else 70.0
+	var offset = width / 2.0
 	var screen_pos = Vector2(
-		grid_pos.x * square_width + offset,
-		grid_pos.y * square_width + offset
+		grid_pos.x * width + offset,
+		grid_pos.y * width + offset
 	)
 	var from = camera.project_ray_origin(screen_pos)
 	var dir = camera.project_ray_normal(screen_pos)
@@ -668,10 +681,18 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		indicator_type = MoveIndicator.Type.BRILLIANT
 		play_sound("promote")
 		if camera_controller: camera_controller.dynamic_zoom("promotion", target_3d_pos)
+		# 🎨 EFFETS: Ondulation dorée + Highlight
+		if board_effects:
+			board_effects.highlight_square(p.new_pos, Color.GOLD, 1.0)
+			board_effects.create_ripple_effect(p.new_pos, 1.2)
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
 		play_sound("castle")
 		if camera_controller: camera_controller.dynamic_zoom("castle", target_3d_pos)
+		# 🎨 EFFETS: Double ondulation (roi + tour)
+		if board_effects:
+			board_effects.create_ripple_effect(p.pos, 0.8)
+			board_effects.create_ripple_effect(p.new_pos, 0.8)
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
 		var r = randf()
@@ -686,6 +707,13 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 				camera_controller.dynamic_zoom("capture_major", target_3d_pos)
 			else:
 				camera_controller.dynamic_zoom("capture", target_3d_pos)
+		
+		# 🎨 EFFETS VISUELS: Ondulation + Highlight rouge pour capture
+		if board_effects:
+			board_effects.highlight_square(p.new_pos, Color.RED, 0.6)
+			# Pas d'ondulation pour les captures de pions (bruit visuel réduit)
+			if p.key != "P":
+				board_effects.create_ripple_effect(p.new_pos, 1.5)
 	else:
 		play_sound("move")
 		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
@@ -740,11 +768,20 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			var king_pos = get_marker_position(get_grid_index(king.pos.x, king.pos.y))
 			# NOTE: Détection de mat locale potentiellement instable (voir Main.gd), 
 			# on utilise l'effet de check standard pour éviter de bloquer la caméra sur un faux mat.
-			camera_controller.dynamic_zoom("check", king_pos) 
+			camera_controller.dynamic_zoom("check", king_pos)
+			
+			# 🎨 EFFETS: Pulsation + Flash pour Mat
+			if board_effects:
+				board_effects.pulse_square(king.pos, 1.4, 3)
+				board_effects.flash_board(Color(0.5, 0, 0, 0.3), 1.0) 
 		elif check_info.checked:
 			var king = kings[check_info.side]
 			var king_pos = get_marker_position(get_grid_index(king.pos.x, king.pos.y))
 			camera_controller.dynamic_zoom("check", king_pos)
+			
+			# 🎨 EFFETS: Highlight orange pour Échec
+			if board_effects:
+				board_effects.highlight_square(king.pos, Color.ORANGE, 0.8)
 		else:
 			# Si pas de check/mat, on reset la caméra après un délai
 			# Nous utilisons un timer oneshot pour ne pas bloquer
