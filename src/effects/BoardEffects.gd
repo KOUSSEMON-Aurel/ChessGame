@@ -122,11 +122,13 @@ func create_ripple_effect(center_pos_grid: Vector2, intensity: float = 1.0):
 	var speed = 7.0 * scale_factor
 	board_material.set_shader_parameter("ripple_speed", speed) 
 	
-	# Decay : S'assurer qu'on voit tout le plateau
-	var decay = 1.0 / (10.0 * scale_factor)
+	# Decay : Effet plus LOCAL demandé.
+	# Avant: 1.0 / (10 * scale) -> Rayon ~10 cases.
+	# Maintenant: 1.0 / (4 * scale) -> Rayon ~4 cases. Ça s'arrête vite.
+	var decay = 1.0 / (4.0 * scale_factor)
 	board_material.set_shader_parameter("ripple_decay", decay)
 	
-	print("🌊 Pulse Calc - Scale:", scale_factor, " Freq:", freq, " Speed:", speed, " Amp:", target_amp)
+	print("🌊 Pulse Localized - Scale:", scale_factor, " Decay:", decay)
 	
 	board_material.set_shader_parameter("ripple_time", 0.0)
 	tween.tween_method(

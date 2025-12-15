@@ -54,9 +54,9 @@ void vertex() {
 		VERTEX.y += wave_shape * amp;
 		
 		// 2. Lateral Displacement (Shockwave)
-		// Reduced from 0.5 to 0.1 to prevent "gaps" between tiles
-		float shock = exp(-x*x); 
-		VERTEX.xz += dir * shock * amp * 0.15;
+		// REMOVED completely to fix "separation des cases".
+		// Pure vertical elasticity is cleaner.
+		VERTEX.xz += dir * 0.0;
 		
 		// 3. Normal Recalculation
 		// Fix "Black areas": The slope was too extreme, causing the normal to point sideways/down
