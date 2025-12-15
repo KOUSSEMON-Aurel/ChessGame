@@ -127,6 +127,11 @@ static func _animate_jump_drop(piece: Node3D, tween: Tween, params: Dictionary) 
 	tween.set_ease(Tween.EASE_IN)
 	tween.set_trans(Tween.TRANS_LINEAR)
 	
+	# IMPACT TRIGGER
+	tween.tween_callback(func(): 
+		if params.has("on_impact"): params["on_impact"].call()
+	)
+	
 	# Phase 6: Impact - squash à l'atterrissage
 	tween.set_parallel(true)
 	tween.tween_property(piece, "scale", Vector3(1.15, 0.85, 1.15) * original_scale, 0.05)
@@ -225,6 +230,50 @@ static func _add_pendulum_effect(tween: Tween, piece: Node3D, original_rotation:
 	tween.tween_property(piece, "rotation:z", original_rotation.z, osc_time * 0.5)
 	tween.set_ease(Tween.EASE_OUT)
 
+## Helper: Ajoute un effet d'inclinaison (Tilt) dans la direction du mouvement
+static func _apply_tilt(piece: Node3D, tween: Tween, from: Vector3, to: Vector3, duration: float):
+	if not ENABLE_FANCY_ANIMATIONS: return
+	
+	var dir = (to - from).normalized()
+	if dir.length_squared() < 0.001: return
+	
+	# Calculer l'axe de rotation (produit vectoriel direction x UP)
+	# On veut pencher vers l'avant, donc rotation autour de l'axe perpendiculaire
+	var tilt_axis = dir.cross(Vector3.UP).normalized()
+	
+	# Angle d'inclinaison (ex: 15 degrés)
+	var tilt_angle = deg_to_rad(15.0)
+	
+	# On ne peut pas facilement tween une rotation autour d'un axe arbitraire avec propriété simple.
+	# On va tweener une propriété fictive via méthode ou modifier rotation.
+	# Simplification: tweener 'rotation' est risqué si on modifie Y en même temps.
+	# Si la pièce ne tourne pas sur Y (Arc Trajectory), on peut tween X et Z.
+	
+	# Pour simplifier et éviter conflits avec Knight Rotation:
+	# On n'applique le tilt QUE si pas de rotation Y active significative, ou on le compose.
+	# Ici, faisons simple: Tilt avant (début) -> Tilt arrière (freinage) -> Repos.
+	
+	# On utilise une méthode pour appliquer la rotation additive ? Trop complexe pour statique.
+	# On va juste modifier la rotation X locale (Pitch) si la pièce est orientée vers cible.
+	# Mais les pièces regardent toujours -Z ou +Z...
+	
+	# Alternative visuelle : Utiliser rotation:x (Pitch) et rotation:z (Roll) basés sur la direction.
+	# target_tilt = Basis.looking_at(dir) ... non.
+	
+	# Approche la plus robuste pour Godot Tween : Basculer "x" et "z" par petits montants.
+	var forward_tilt = tilt_axis * tilt_angle # Vector3(pitch, yaw, roll) representation approx
+	
+	# Phase 1: Pencher en avant (Accélération)
+	tween.parallel().tween_property(piece, "rotation:x", piece.rotation.x + forward_tilt.x, duration * 0.2).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(piece, "rotation:z", piece.rotation.z + forward_tilt.z, duration * 0.2).set_ease(Tween.EASE_OUT)
+	
+	# Phase 2: Maintenir ou réduire
+	
+	# Phase 3: Redresser (Freinage/Arrivée)
+	# On planifie le redressement vers la fin
+	tween.parallel().tween_property(piece, "rotation:x", piece.rotation.x, duration * 0.3).set_delay(duration * 0.7)
+	tween.parallel().tween_property(piece, "rotation:z", piece.rotation.z, duration * 0.3).set_delay(duration * 0.7)
+
 ## Animation 4: SQUASH & STRETCH (Pion)
 ## Écrasement et étirement pendant mouvement
 static func _animate_squash_stretch(piece: Node3D, tween: Tween, params: Dictionary) -> Tween:
@@ -289,6 +338,10 @@ static func _animate_arc_trajectory(piece: Node3D, tween: Tween, params: Diction
 		piece.position = Vector3(current_pos.x, current_pos.y + height_offset, current_pos.z)
 	
 	tween.tween_method(arc_callback, 0.0, 1.0, duration)
+	
+	# Tilt dynamique
+	_apply_tilt(piece, tween, from_pos, to_pos, duration)
+	
 	tween.set_ease(Tween.EASE_IN_OUT)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	
@@ -405,6 +458,10 @@ static func _animate_standard(piece: Node3D, tween: Tween, params: Dictionary) -
 	var duration = params.get("duration", SPEED_NORMAL) * ANIMATION_SPEED_MULTIPLIER
 	
 	tween.tween_property(piece, "position", to_pos, duration)
+	
+	# Tilt dynamique
+	_apply_tilt(piece, tween, piece.position, to_pos, duration)
+	
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_OUT)
 	

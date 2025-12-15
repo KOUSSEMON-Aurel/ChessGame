@@ -746,6 +746,23 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		var anim_type = PieceAnimations.get_animation_for_piece(p.key, move_context)
 		var anim_params = PieceAnimations.get_animation_params(start_pos, target_pos, p.key, move_context)
 		
+		# SCREEN SHAKE: Configurer callback d'impact pour pièces lourdes
+		if camera_controller:
+			var shake_intensity = 0.0
+			# Captures lourdes (Dame, Tour, Roi) ou Roque
+			if (p.key in ["Q", "R", "K"] and is_capture) or is_castling:
+				shake_intensity = 0.3
+			# Sauts longs (Tour)
+			elif p.key == "R" and distance > 200:
+				shake_intensity = 0.25
+			# Captures standard
+			elif is_capture:
+				shake_intensity = 0.15
+				
+			if shake_intensity > 0.0:
+				anim_params["on_impact"] = func(): 
+					camera_controller.add_camera_shake(shake_intensity, 0.2)
+		
 		# Jouer l'animation
 		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
 		
