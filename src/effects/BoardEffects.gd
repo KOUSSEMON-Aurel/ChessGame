@@ -106,26 +106,32 @@ func create_ripple_effect(center_pos_grid: Vector2, intensity: float = 1.0):
 		target_amp, 0.0, 0.8
 	).set_delay(0.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
-	# 2. Temps (Propagation de l'onde) et Fréquence
-	var freq = 2.5 / board_scale if board_scale > 0 else 5.0
+	# 2. Propsulse
+	# Scale = 70.0 approx.
+	# Pulse Width desiree ~ 2.5 tiles.
+	# Shader x = (dist - pos) * freq. Pulse active pour x dans [-2, 2].
+	# Donc largeur = 4 / freq.
+	# 2. Propsulse
+	# Scale = 70.0 approx.
+	# Pulse Width : On élargit pour éviter les "trous" entre cases (Plus "mou/élastique")
+	# freq = 0.8 / scale au lieu de 1.6
+	var freq = 0.8 / scale_factor
 	board_material.set_shader_parameter("ripple_frequency", freq)
 	
-	# BUGFIX: Decay (Atténuation) doit être très faible si l'échelle est grande
-	# On veut que l'onde porte sur au moins 5-6 cases.
-	# Distance max = 6 * board_scale.
-	# attenuation = 1.0 - dist * decay.  => decay = 1.0 / (6 * scale)
-	var decay = 1.0 / (6.0 * scale_factor)
+	# Vitesse : Adaptée à la largeur
+	var speed = 7.0 * scale_factor
+	board_material.set_shader_parameter("ripple_speed", speed) 
+	
+	# Decay : S'assurer qu'on voit tout le plateau
+	var decay = 1.0 / (10.0 * scale_factor)
 	board_material.set_shader_parameter("ripple_decay", decay)
 	
-	print("🌊 Ripple tuning - Freq:", freq, " Decay:", decay, " Amp:", target_amp)
-	
-	# Ajuster la vitesse pour que ça "voyage" bien
-	board_material.set_shader_parameter("ripple_speed", 5.0) 
+	print("🌊 Pulse Calc - Scale:", scale_factor, " Freq:", freq, " Speed:", speed, " Amp:", target_amp)
 	
 	board_material.set_shader_parameter("ripple_time", 0.0)
 	tween.tween_method(
 		func(v): board_material.set_shader_parameter("ripple_time", v),
-		0.0, 10.0, 1.2 # Un peu plus lent (1.2s)
+		0.0, 1.5, 1.2 # Time 0->1.5 (Distance parcourue = 1.5 * 9 tiles = 13 tiles. Suffisant)
 	).set_trans(Tween.TRANS_LINEAR)
 
 # ========================================

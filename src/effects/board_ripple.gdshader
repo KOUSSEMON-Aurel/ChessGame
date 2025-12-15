@@ -24,53 +24,65 @@ void vertex() {
 	vec2 dir = (dist > 0.001) ? diff / dist : vec2(0.0);
 	
 	// Wave params
-	float phase = dist * ripple_frequency - ripple_time * ripple_speed;
+	// "Pulse" wave instead of continuous sine
+	// We want a single hump traveling outward.
+	// Function: -4 * x * exp(-2 * x^2) -> Derivative of Gaussian (Mexican Hat-ish)
+	// Let x = (dist - time_pos) * width
+	
+	// Function: -4 * x * exp(-2 * x^2) -> Derivative of Gaussian (Mexican Hat-ish)
+	// Let x = (dist - travel_pos) * width_factor
+	// We reuse ripple_frequency as "Wave Width Factor" (Inverse Size)
+	
+	float travel_pos = ripple_time * ripple_speed;
+	float x = (dist - travel_pos) * ripple_frequency; 
+	
+	// Pulse Formula: Simple Gaussian Pulse approximating a splash
+	// y = amp * exp(-x*x) * sin(x * 3.0) -> Damped packet
+	// Or simpler: Single hump
+	// y = amp * exp(-x*x) * 2.0; (just up)
+	// But riples go Up AND Down.
+	// Mexican Hat: (1 - x*x) * exp(-0.5 * x*x)
+	float wave_shape = (1.0 - x*x) * exp(-0.5 * x*x);
+	
 	float attenuation = max(0.0, 1.0 - dist * ripple_decay);
 	
-	// Base wave: y = sin(phase)
-	float sin_v = sin(phase);
-	float cos_v = cos(phase);
-	
 	// Amplitude effective
-	float amp = ripple_amplitude * attenuation;
+	float amp = ripple_amplitude * attenuation * 2.0; // Boosted
 	
-	if (amp > 0.001) {
+	if (abs(amp) > 0.001) {
 		// 1. Vertical Displacement
-		VERTEX.y += sin_v * amp;
+		VERTEX.y += wave_shape * amp;
 		
-		// 2. Lateral Displacement (for Top-Down visibility)
-		// Push vertices slightly outward/inward with the wave
-		VERTEX.xz += dir * sin_v * amp * 0.4;
+		// 2. Lateral Displacement (Shockwave)
+		// Reduced from 0.5 to 0.1 to prevent "gaps" between tiles
+		float shock = exp(-x*x); 
+		VERTEX.xz += dir * shock * amp * 0.15;
 		
-		// 3. Normal Recalculation (Analytic Derivative)
-		// dy/ddist = amp * freq * cos(phase) - decay_term... (approx)
-		// Simplified: just wave slope
-		float slope = amp * ripple_frequency * cos_v;
+		// 3. Normal Recalculation
+		// Fix "Black areas": The slope was too extreme, causing the normal to point sideways/down
+		// resulting in pitch black shadows.
+		// Solution: Reduce slope influence and blend with original normal (Up).
 		
-		// Normal vector in World Space (assuming flat board initially up=(0,1,0))
-		// N = (-dy/dx, 1, -dy/dz)
-		// dy/dx = slope * dir.x
-		// dy/dz = slope * dir.y (which is z in 3D)
-		vec3 new_normal = normalize(vec3(-slope * dir.x, 1.0, -slope * dir.y));
+		float slope = -x * wave_shape * 0.5 * amp; // Reduced factor from 1.5 to 0.5
 		
-		// Transform Normal back to Model Space? 
-		// Or just set NORMAL and let Godot handle it?
-		// Godot expects NORMAL in Model Space.
-		// Since Board tiles are likely not rotated, Model Normal ~ World Normal.
-		NORMAL = new_normal;
+		vec3 calculated_normal = normalize(vec3(-slope * dir.x, 1.0, -slope * dir.y));
+		
+		// Blend with strict UP vector to keep it "safe"
+		NORMAL = normalize(mix(vec3(0.0, 1.0, 0.0), calculated_normal, 0.5));
 	}
 }
 
 void fragment() {
-	// Set base color
-	vec3 final_color = base_color;
+	// Base Color from Instance Uniform
+	ALBEDO = base_color.rgb;
 	
-	// Apply highlight if active
-	if (highlight_color.a > 0.0) {
-		final_color = mix(final_color, highlight_color.rgb, highlight_color.a);
-	}
+	// Highlight overlay
+	// Use pre-multiplied alpha or mix
+	ALBEDO = mix(ALBEDO, highlight_color.rgb, highlight_color.a);
 	
-	ALBEDO = final_color;
-	ROUGHNESS = 0.5;
-	SPECULAR = 0.2;
+	// PBR Properties for Visibility!
+	// Glossy plastic look to catch light on waves
+	ROUGHNESS = 0.2; 
+	METALLIC = 0.0;
+	SPECULAR = 0.5;
 }
