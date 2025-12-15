@@ -730,10 +730,28 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 	
 	if p.obj != null:
 		var target_pos = get_marker_position(end_pos_idx)
-		var tween = create_tween()
-		tween.set_trans(Tween.TRANS_CUBIC)
-		tween.set_ease(Tween.EASE_OUT)
-		tween.tween_property(p.obj, "position", target_pos, 0.3)
+		var start_pos = get_marker_position(start_pos_idx)
+		var distance = start_pos.distance_to(target_pos)
+		
+		# 🎨 ANIMATIONS SPÉCIALES: Déterminer l'animation selon contexte
+		var is_capture = (grid[end_pos_idx] != null or was_capture)
+		var move_context = {
+			"is_capture": is_capture,
+			"is_promotion": is_promotion,
+			"is_castling": is_castling,
+			"distance": distance
+		}
+		
+		# Sélection automatique de l'animation
+		var anim_type = PieceAnimations.get_animation_for_piece(p.key, move_context)
+		var anim_params = PieceAnimations.get_animation_params(start_pos, target_pos, p.key, move_context)
+		
+		# Jouer l'animation
+		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
+		
+		# Attendre la fin de l'animation avant de continuer (optionnel)
+		# Note: Comme le code original n'attendait pas, on garde ce comportement
+
 	
 	if p != passant_pawn:
 		passant_pawn = null
