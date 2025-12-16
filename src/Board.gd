@@ -54,6 +54,7 @@ var dragged_piece: Piece = null
 var drag_offset: Vector3 = Vector3.ZERO
 var camera_controller: ChessCameraController = null
 var board_effects: BoardEffects = null
+var cloth_board_mesh: ClothBoardMesh = null
 
 # Input control - set by Main.gd
 var input_enabled: bool = true
@@ -124,6 +125,15 @@ func _ready():
 	# Les tiles seront assignées après draw_tiles_3d()
 	
 	draw_tiles_3d()
+	
+	# Initialiser le mesh tissu (ClothBoardMesh)
+	if sub_vp:
+		cloth_board_mesh = sub_vp.get_node_or_null("ClothBoardMesh") as ClothBoardMesh
+		if cloth_board_mesh:
+			print("✅ ClothBoardMesh initialized in Board")
+			# Masquer les tiles 3D individuelles - le mesh tissu les remplace visuellement
+			if board_3d_container:
+				board_3d_container.visible = false
 	
 	# Initialize markers after viewport and tiles are ready
 	_init_markers()
@@ -235,6 +245,11 @@ func _input(event):
 			show_indicator(test_pos, MoveIndicator.Type.BLUNDER)
 		elif event.keycode == KEY_6:
 			show_indicator(test_pos, MoveIndicator.Type.INACCURACY)
+		# TEST: Déformation tissu avec touche T
+		elif event.keycode == KEY_T:
+			if cloth_board_mesh:
+				print("🧪 Test déformation tissu à (4, 4)")
+				cloth_board_mesh.deform_at(4, 4, 1.0)
 
 func _on_HighlightTimer_timeout():
 	pass
@@ -686,6 +701,9 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			board_effects.highlight_square(p.new_pos, Color.GOLD, 1.0)
 			# Couleur BRILLIANT (bleu) pour promotion
 			board_effects.create_ripple_effect(p.new_pos, 1.2, move_indicator.type_colors[MoveIndicator.Type.BRILLIANT])
+		# 🧵 EFFET TISSU: Déformation forte pour promotion
+		if cloth_board_mesh:
+			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 1.5)
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
 		play_sound("castle")
@@ -696,6 +714,14 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			var castle_color = move_indicator.type_colors[MoveIndicator.Type.EXCELLENT]
 			board_effects.create_ripple_effect(p.pos, 0.8, castle_color)
 			board_effects.create_ripple_effect(p.new_pos, 0.8, castle_color)
+		# 🧵 EFFET TISSU: Double déformation pour roque
+		if cloth_board_mesh:
+			cloth_board_mesh.deform_at(int(p.pos.x), int(p.pos.y), 0.8)
+			# Deuxième déformation légèrement décalée
+			var timer = get_tree().create_timer(0.15)
+			timer.timeout.connect(func(): 
+				if cloth_board_mesh: cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.8)
+			)
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
 		var r = randf()
@@ -711,20 +737,22 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			else:
 				camera_controller.dynamic_zoom("capture", target_3d_pos)
 		
-		# 🎨 EFFETS VISUELS: Ondulation + Highlight rouge pour capture
-		if board_effects:
-			board_effects.highlight_square(p.new_pos, Color.RED, 0.6)
-			# Pas d'ondulation pour les captures de pions (bruit visuel réduit)
-			if p.key != "P":
-				# Couleur selon qualité du coup (BRILLIANT/BEST/GOOD)
-				var capture_color = move_indicator.type_colors.get(indicator_type, Color.WHITE)
-				board_effects.create_ripple_effect(p.new_pos, 1.5, capture_color)
+
+		# 🧵 EFFET TISSU: Déformation pour TOUTE capture
+		if cloth_board_mesh:
+			print("🧵 Events: Capture détectée !")
+			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 1.0)
 	else:
 		play_sound("move")
 		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
 		
 		# 🎬 CAMERA: Zoom léger sur coup normal
 		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
+		
+		# 🧵 EFFET TISSU: Petite déformation pour coup normal (poser la pièce)
+		if cloth_board_mesh:
+			print("🧵 Events: Move normal")
+			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.4)
 	
 	if indicator_type != null:
 		show_indicator(p.new_pos, indicator_type)

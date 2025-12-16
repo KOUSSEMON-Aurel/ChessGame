@@ -1,8 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://c8usdvp4rr7d2"]
+[gd_scene load_steps=4 format=3 uid="uid://c8usdvp4rr7d2"]
 
 [ext_resource type="Script" uid="uid://d1v1kd1jt7f6k" path="res://Board.gd" id="1"]
 [ext_resource type="Shader" path="res://outline.gdshader" id="2"]
 [ext_resource type="Script" path="res://camera/ChessCameraController.gd" id="3"]
+[ext_resource type="Script" path="res://board/ClothBoardMesh.gd" id="4"]
+[ext_resource type="Shader" path="res://shaders/cloth_checkerboard.gdshader" id="5"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_cloth"]
+shader = ExtResource("5")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_outline"]
 shader = ExtResource("2")
@@ -74,6 +79,10 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 245, 200, 245)
 light_energy = 0.5
 omni_range = 1000.0
+
+[node name="ClothBoardMesh" type="MeshInstance3D" parent="Container/SubViewportContainer/SubViewport"]
+material_override = SubResource("ShaderMaterial_cloth")
+script = ExtResource("4")
 
 [node name="HighlightTimer" type="Timer" parent="."]
 wait_time = 0.3
