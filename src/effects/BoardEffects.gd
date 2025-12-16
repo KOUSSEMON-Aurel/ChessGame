@@ -10,6 +10,7 @@ var board_tiles: Array = []
 # Matériau partagé pour toutes les tuiles
 var board_material: ShaderMaterial
 var ripple_shader = preload("res://effects/board_ripple.gdshader")
+var diamond_shader = preload("res://src/shaders/diamond_highlight.gdshader")
 
 # Liste des tweens actifs
 var active_tweens: Array[Tween] = []
@@ -256,13 +257,7 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	
 	# Charger le shader
 	var shader_mat = ShaderMaterial.new()
-	var shader = load("res://src/shaders/diamond_highlight.gdshader")
-	if not shader:
-		push_error("diamond_highlight.gdshader not found!")
-		diamond.queue_free()
-		return
-	
-	shader_mat.shader = shader
+	shader_mat.shader = diamond_shader
 	shader_mat.set_shader_parameter("highlight_color", Vector3(color.r, color.g, color.b))
 	shader_mat.set_shader_parameter("fade", 0.0)  # Commence invisible
 	shader_mat.set_shader_parameter("glow_intensity", 1.5)
