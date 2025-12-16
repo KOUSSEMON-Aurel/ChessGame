@@ -700,7 +700,8 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		if board_effects:
 			board_effects.highlight_square(p.new_pos, Color.GOLD, 1.0)
 			# Couleur BRILLIANT (bleu) pour promotion
-			board_effects.create_ripple_effect(p.new_pos, 1.2, move_indicator.type_colors[MoveIndicator.Type.BRILLIANT])
+			if move_indicator:
+				board_effects.create_ripple_effect(p.new_pos, 1.2, move_indicator.type_colors[MoveIndicator.Type.BRILLIANT])
 
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
@@ -709,7 +710,8 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		# 🎨 EFFETS: Double ondulation (roi + tour)
 		if board_effects:
 			# Couleur EXCELLENT (vert) pour roque
-			var castle_color = move_indicator.type_colors[MoveIndicator.Type.EXCELLENT]
+			var castle_color = Color.GREEN
+			if move_indicator: castle_color = move_indicator.type_colors[MoveIndicator.Type.EXCELLENT]
 			board_effects.create_ripple_effect(p.pos, 0.8, castle_color)
 			board_effects.create_ripple_effect(p.new_pos, 0.8, castle_color)
 
@@ -719,6 +721,12 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		if r < 0.1: indicator_type = MoveIndicator.Type.BRILLIANT
 		elif r < 0.4: indicator_type = MoveIndicator.Type.BEST
 		else: indicator_type = MoveIndicator.Type.GOOD
+		
+		# 🎨 EFFETS: Ondulation rouge pour capture
+		if board_effects:
+			board_effects.highlight_square(p.new_pos, Color.RED, 0.6)
+			if p.key != "P": # Pas pour pions
+				board_effects.create_ripple_effect(p.new_pos, 1.5, Color.RED)
 		
 		# 🎬 CAMERA: Zoom sur capture
 		if camera_controller:
@@ -1299,10 +1307,8 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	Affiche le losange lumineux UNIQUEMENT pour les coups marquants.
 	Filtrage strict : BRILLIANT/EXCELLENT/INACCURACY/BLUNDER
 	"""
-	print("🔹 _trigger_diamond_highlight appelé: pos=%s type=%s" % [grid_pos, indicator_type])
 	
 	if indicator_type == null or not board_effects:
-		print("  ❌ Annulé: indicator_type=%s board_effects=%s" % [indicator_type, board_effects != null])
 		return
 	
 	# Filtre : seulement les emojis qui méritent un losange coloré
@@ -1314,7 +1320,6 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	]
 	
 	if not indicator_type in special_types:
-		print("  ❌ Type non spécial, ignoré")
 		return  # Pas de losange pour GOOD/BEST/null
 	
 	# Couleurs selon type
@@ -1334,8 +1339,6 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	
 	# Petit délai pour effet pro (micro-amélioration #1)
 	await get_tree().create_timer(0.03).timeout
-	
-	print("  ✅ Création losange: couleur=%s" % [diamond_color])
 	
 	# Afficher le losange lumineux
 	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)

@@ -245,15 +245,11 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	"""
 	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
 	if tile_idx < 0 or tile_idx >= board_tiles.size(): 
-		print("❌ Diamond: tile_idx invalide: %d" % tile_idx)
 		return
 	
 	var tile = board_tiles[tile_idx]
 	if not tile: 
-		print("❌ Diamond: tile null")
 		return
-	
-	print("💎 Création diamond_highlight: case=%s couleur=%s" % [grid_pos, color])
 	
 	# Créer le mesh losange (PlaneMesh orienté à 45°)
 	var diamond = MeshInstance3D.new()
@@ -276,7 +272,6 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	# Utiliser la position globale du tile
 	var parent_3d = tile.get_parent()
 	if not parent_3d:
-		print("❌ Diamond: pas de parent 3D")
 		diamond.queue_free()
 		return
 	
@@ -284,12 +279,10 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	
 	# Position absolue basée sur le tile
 	var tile_world_pos = tile.global_position
-	diamond.global_position = Vector3(tile_world_pos.x, tile_world_pos.y + 5.0, tile_world_pos.z)
+	diamond.global_position = Vector3(tile_world_pos.x, tile_world_pos.y + 1.0, tile_world_pos.z)
 	
-	diamond.rotation.x = -PI / 2  # Plan horizontal
-	diamond.rotation.z = PI / 4   # 45°
-	
-	print("  Position: tile=%s diamond=%s" % [tile_world_pos, diamond.global_position])
+	# Rotation UNIQUEMENT Z pour faire un losange (pas de X car PlaneMesh est déjà à plat)
+	diamond.rotation.y = PI / 4   # Rotation 45° autour de Y (pour tourner à plat)
 	
 	# Animation
 	var tween = _create_managed_tween()
@@ -311,7 +304,6 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	
 	# Destruction
 	tween.tween_callback(func(): 
-		print("💎 Destruction diamond")
 		diamond.queue_free()
 	)
 
