@@ -4,9 +4,9 @@ render_mode unshaded, cull_disabled;
 // Shader damier procédural pour le ClothBoardMesh
 // Mode UNSHADED pour couleurs pures et nettes (anti-TV cathodique)
 
-// Couleurs du plateau original (Board.tscn)
-uniform vec3 color_white : source_color = vec3(0.827451, 0.827451, 0.827451);
-uniform vec3 color_grey : source_color = vec3(0.443137, 0.443137, 0.443137);
+// Couleurs du plateau original, réduites à 70% pour moins de luminosité
+uniform vec3 color_white : source_color = vec3(0.579, 0.579, 0.579); // 0.827 * 0.7
+uniform vec3 color_grey : source_color = vec3(0.310, 0.310, 0.310);  // 0.443 * 0.7
 
 void fragment() {
 	// UV va de 0 à 1, on multiplie par 8 pour avoir 8 cases

@@ -797,7 +797,14 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 					camera_controller.add_camera_shake(shake_intensity, 0.2)
 		
 		# Jouer l'animation
+		p.is_moving = true # 🌊 Empêcher la vague de modifier la hauteur pendant le saut
 		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
+		
+		# Réactiver la physique de vague à la fin
+		if _tween:
+			_tween.finished.connect(func(): p.is_moving = false)
+		else:
+			p.is_moving = false
 		
 		# Attendre la fin de l'animation avant de continuer (optionnel)
 		# Note: Comme le code original n'attendait pas, on garde ce comportement
@@ -1258,3 +1265,21 @@ func get_position_info(p: Piece, non_player_move, _offset_divisor = square_width
 	if !ok and p == passant_pawn:
 		passant_pawn = null
 	return { "ok": ok, "piece": p2, "castling": castling, "passant": passant }
+
+func _process(delta):
+	# 🌊 EFFET VAGUE : Synchronisation pièces/mesh
+	if not cloth_board_mesh:
+		return
+		
+	for piece in grid:
+		# Ignorer les cases vides et les pièces en animation
+		if piece == null or piece.obj == null:
+			continue
+		if piece.is_moving:
+			continue
+			
+		# Calculer la hauteur cible sous la pièce
+		var target_height = cloth_board_mesh.get_height_at(piece.obj.position)
+		
+		# Suivre la hauteur avec lissage rapide (quasi instantané mais sans jitter)
+		piece.obj.position.y = lerpf(piece.obj.position.y, target_height, delta * 25.0)

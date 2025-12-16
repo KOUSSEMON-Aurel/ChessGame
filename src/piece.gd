@@ -10,3 +10,4 @@ var obj : Node3D # The 3D model object in the running game
 var pos = Vector2(0, 0) # position in grid
 var new_pos = Vector2(0, 0) # position to move to in grid coors
 var tagged = false # Used to indicate if castling is enabled for Rook or King
+var is_moving = false # Si vrai, la pièce ignore la hauteur de la vague (animée par Tween)

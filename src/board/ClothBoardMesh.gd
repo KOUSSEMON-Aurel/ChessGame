@@ -161,6 +161,61 @@ func _build_mesh(arr_mesh: ArrayMesh):
 	
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 
+func get_height_at(world_pos: Vector3) -> float:
+	"""
+	Retourne la hauteur Y du mesh à la position world donnée.
+	Utilise une interpolation bilinéaire pour suivre les courbes.
+	"""
+	if current_vertices.size() == 0:
+		return 0.0
+		
+	# 1. Convertir en coordonnées locales normalisées (0..1)
+	var size_x = board_max.x - board_min.x
+	var size_z = board_max.z - board_min.z
+	
+	if size_x <= 0 or size_z <= 0: return 0.0
+	
+	var t_x = (world_pos.x - board_min.x) / size_x
+	var t_z = (world_pos.z - board_min.z) / size_z
+	
+	# Clamper pour éviter les crashs si un peu hors bord
+	t_x = clampf(t_x, 0.0, 1.0)
+	t_z = clampf(t_z, 0.0, 1.0)
+	
+	# 2. Convertir en coordonnées grille
+	var grid_x_float = t_x * subdivisions
+	var grid_z_float = t_z * subdivisions
+	
+	# Indices du quad supérieur gauche
+	var x0 = int(floor(grid_x_float))
+	var z0 = int(floor(grid_z_float))
+	
+	# S'assurer qu'on ne déborde pas (dernier quad)
+	x0 = min(x0, subdivisions - 1)
+	z0 = min(z0, subdivisions - 1)
+	
+	# 3. Récupérer les 4 hauteurs
+	# vertex_index = y * (subdivisions + 1) + x
+	var stride = subdivisions + 1
+	var idx00 = z0 * stride + x0
+	var idx10 = idx00 + 1
+	var idx01 = idx00 + stride
+	var idx11 = idx01 + 1
+	
+	var h00 = current_vertices[idx00].y
+	var h10 = current_vertices[idx10].y
+	var h01 = current_vertices[idx01].y
+	var h11 = current_vertices[idx11].y
+	
+	# 4. Interpolation bilinéaire
+	var fx = grid_x_float - x0
+	var fz = grid_z_float - z0
+	
+	var h_top = lerpf(h00, h10, fx)
+	var h_bot = lerpf(h01, h11, fx)
+	
+	return lerpf(h_top, h_bot, fz)
+
 func deform_at(board_x: int, board_y: int, intensity: float = 1.0):
 	"""
 	Déforme le mesh localement autour de la case (board_x, board_y)
