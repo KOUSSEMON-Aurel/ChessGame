@@ -967,33 +967,39 @@ func try_to_make_a_move(piece: Piece, non_player_move = true):
 		if piece.key == "K":
 			if board.is_king_checked(piece)["checked"]:
 				# alert("Cannot move into check position!")
-				print("Cannot move into check position!")
+				pass
 				ok_to_move = false
 			else:
 				if rook != null:
 					move_piece(rook, false)
 				board.take_piece(info["piece"])
-				move_piece(piece, true, true) # Capture du roi (rare/impossible normalement)
+				# Pour le Roi, c'est une capture si info["piece"] n'est pas null
+				var k_capture = (info["piece"] != null)
+				move_piece(piece, true, k_capture) 
 		else:
+			# DÉTECTION CORRECTE CAPTURE
+			var is_capture = (info["piece"] != null)
+			# Vérifier Prise en Passant (si info["passant"] et ligne 942 validée)
+			# La logique précédente pour en-passant était aux lignes 942-943 qui appellent board.take_piece
+			# Si on a pris une pièce via take_piece (impossible de savoir ici sauf si on le tracke)
+			# MAIS: board.take_piece(null) ne fait rien.
+			# Regardons l'état: info["piece"] est la cible sur la case d'arrivée.
+			# Si en-passant, info["piece"] est null, mais on capture le pion adverse.
+			
+			# Variable pour suivre si une vraie capture a eu lieu (y compris en passant)
+			var effective_capture = is_capture
+			
+			# Recalcul de l'état "En Passant" qui était éparpillé avant
+			if info["passant"] and board.passant_pawn != null and board.passant_pawn.pos.x == piece.new_pos.x:
+				# C'est une prise en passant
+				effective_capture = true
+			
 			board.take_piece(info["piece"])
-			move_piece(piece, true, true) # Capture normale
-			# DÉSACTIVATION DE LA DÉTECTION DE MAT
-			# La fonction is_king_checked a une logique erronée : elle ne vérifie que si le Roi
-			# peut bouger, sans vérifier si une autre pièce peut bloquer l'échec ou capturer l'attaquant.
-			# Cela causait des faux mats. Stockfish gère déjà correctement les mats (retourne (none)),
-			# donc on se contente de détecter les échecs visuellement.
+			move_piece(piece, true, effective_capture)
+			
+			# DÉSACTIVATION DE LA DÉTECTION DE MAT (Legacy logic preserved)
 			var status = board.is_king_checked(piece)
-			# Commenté pour éviter les faux mats:
-			# if status["mated"]:
-			# 	print("Check Mate!")
-			# 	if status["side"] == "B":
-			# 		state = PLAYER_WIN
-			# 	else:
-			# 		state = ENGINE_WIN if game_mode == 0 else PLAYER_WIN
-			# 	handle_state(DONE)
-			# else:
 			if status["checked"]:
-				# alert("Check") # User requested to hide this
 				board.play_sound("check")
 				pass
 	
