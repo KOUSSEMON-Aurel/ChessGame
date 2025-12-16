@@ -715,10 +715,12 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
+		# 🧪 TEST: Forcer tous les types spéciaux pour voir les effets
 		var r = randf()
-		if r < 0.1: indicator_type = MoveIndicator.Type.BRILLIANT
-		elif r < 0.4: indicator_type = MoveIndicator.Type.BEST
-		else: indicator_type = MoveIndicator.Type.GOOD
+		if r < 0.25: indicator_type = MoveIndicator.Type.BRILLIANT  # Cyan
+		elif r < 0.5: indicator_type = MoveIndicator.Type.EXCELLENT  # Vert
+		elif r < 0.75: indicator_type = MoveIndicator.Type.INACCURACY  # Orange
+		else: indicator_type = MoveIndicator.Type.BLUNDER  # Rouge
 		
 		# 🎬 CAMERA: Zoom sur capture
 		if camera_controller:
@@ -732,7 +734,9 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 
 	else:
 		play_sound("move")
-		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
+		# 🧪 TEST: Donner un emoji spécial même aux coups normaux
+		var r = randf()
+		if r < 0.5: indicator_type = MoveIndicator.Type.BRILLIANT  # 50% pour voir l'effet
 		
 		# 🎬 CAMERA: Zoom léger sur coup normal
 		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
@@ -1281,7 +1285,10 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	Affiche le losange lumineux UNIQUEMENT pour les coups marquants.
 	Filtrage strict : BRILLIANT/EXCELLENT/INACCURACY/BLUNDER
 	"""
+	print("🔹 _trigger_diamond_highlight appelé: pos=%s type=%s" % [grid_pos, indicator_type])
+	
 	if indicator_type == null or not board_effects:
+		print("  ❌ Annulé: indicator_type=%s board_effects=%s" % [indicator_type, board_effects != null])
 		return
 	
 	# Filtre : seulement les emojis qui méritent un losange coloré
@@ -1293,6 +1300,7 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	]
 	
 	if not indicator_type in special_types:
+		print("  ❌ Type non spécial, ignoré")
 		return  # Pas de losange pour GOOD/BEST/null
 	
 	# Couleurs selon type
@@ -1313,5 +1321,8 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	# Petit délai pour effet pro (micro-amélioration #1)
 	await get_tree().create_timer(0.03).timeout
 	
+	print("  ✅ Création losange: couleur=%s" % [diamond_color])
+	
 	# Afficher le losange lumineux
 	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)
+
