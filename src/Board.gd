@@ -715,12 +715,10 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
-		# 🧪 TEST: Forcer tous les types spéciaux pour voir les effets
 		var r = randf()
-		if r < 0.25: indicator_type = MoveIndicator.Type.BRILLIANT  # Cyan
-		elif r < 0.5: indicator_type = MoveIndicator.Type.EXCELLENT  # Vert
-		elif r < 0.75: indicator_type = MoveIndicator.Type.INACCURACY  # Orange
-		else: indicator_type = MoveIndicator.Type.BLUNDER  # Rouge
+		if r < 0.1: indicator_type = MoveIndicator.Type.BRILLIANT
+		elif r < 0.4: indicator_type = MoveIndicator.Type.BEST
+		else: indicator_type = MoveIndicator.Type.GOOD
 		
 		# 🎬 CAMERA: Zoom sur capture
 		if camera_controller:
@@ -734,9 +732,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 
 	else:
 		play_sound("move")
-		# 🧪 TEST: Donner un emoji spécial même aux coups normaux
-		var r = randf()
-		if r < 0.5: indicator_type = MoveIndicator.Type.BRILLIANT  # 50% pour voir l'effet
+		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
 		
 		# 🎬 CAMERA: Zoom léger sur coup normal
 		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
@@ -789,13 +785,31 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		p.is_moving = true # 🌊 Empêcher la vague de modifier la hauteur pendant le saut
 		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
 		
-		# Réactiver la physique de vague + Effets après atterrissage
+		# Réactiver la physique de vague + Effés après atterrissage
 		if _tween:
 			_tween.finished.connect(func(): 
 				p.is_moving = false
-				# 🎯 Cratère de base pour TOUS les coups (ChessFX)
+				# 🎯 Cratère modulé selon emoji (ChessFX)
 				if cloth_board_mesh:
-					cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.4, 0.35)
+					# Intensité selon rareté de l'emoji
+					var crater_intensity = 0.4  # Base pour tous
+					var return_time = 0.35
+					
+					if indicator_type == MoveIndicator.Type.BRILLIANT:
+						crater_intensity = 1.5  # Très rare, très visible
+						return_time = 0.4
+					elif indicator_type == MoveIndicator.Type.EXCELLENT:
+						crater_intensity = 1.2
+						return_time = 0.4
+					elif indicator_type == MoveIndicator.Type.INACCURACY:
+						crater_intensity = 1.0
+						return_time = 0.4
+					elif indicator_type == MoveIndicator.Type.BLUNDER:
+						crater_intensity = 1.3
+						return_time = 0.5  # Plus lent = "pèse"
+					
+					cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), crater_intensity, return_time)
+				
 				# 💎 Losange lumineux SEULEMENT pour les emojis spéciaux
 				_trigger_diamond_highlight(p.new_pos, indicator_type)
 			)
@@ -1325,4 +1339,3 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	
 	# Afficher le losange lumineux
 	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)
-
