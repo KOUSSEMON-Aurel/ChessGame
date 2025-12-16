@@ -785,12 +785,15 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		p.is_moving = true # 🌊 Empêcher la vague de modifier la hauteur pendant le saut
 		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
 		
-		# Réactiver la physique de vague + Effets ChessFX à la fin
+		# Réactiver la physique de vague + Effets après atterrissage
 		if _tween:
 			_tween.finished.connect(func(): 
 				p.is_moving = false
-				# 🎯 Effets d'impact (cratère + losange) après atterrissage
-				_trigger_impact_effects(p.new_pos, indicator_type)
+				# 🎯 Cratère de base pour TOUS les coups (ChessFX)
+				if cloth_board_mesh:
+					cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.4, 0.35)
+				# 💎 Losange lumineux SEULEMENT pour les emojis spéciaux
+				_trigger_diamond_highlight(p.new_pos, indicator_type)
 			)
 		else:
 			p.is_moving = false
@@ -1273,60 +1276,42 @@ func _process(delta):
 		# Suivre la hauteur avec lissage rapide (quasi instantané mais sans jitter)
 		piece.obj.position.y = lerpf(piece.obj.position.y, target_height, delta * 25.0)
 
-func _trigger_impact_effects(grid_pos: Vector2, indicator_type):
+func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	"""
-	Déclenche les effets ChessFX (cratère + losange) pour les coups marquants.
-	Filtrage strict : uniquement BRILLIANT/EXCELLENT/INACCURACY/BLUNDER
+	Affiche le losange lumineux UNIQUEMENT pour les coups marquants.
+	Filtrage strict : BRILLIANT/EXCELLENT/INACCURACY/BLUNDER
 	"""
-	if indicator_type == null:
+	if indicator_type == null or not board_effects:
 		return
 	
-	# Filtre : seulement les emojis qui méritent un effet visuel
-	var allowed_types = [
+	# Filtre : seulement les emojis qui méritent un losange coloré
+	var special_types = [
 		MoveIndicator.Type.BRILLIANT,
 		MoveIndicator.Type.EXCELLENT,
 		MoveIndicator.Type.INACCURACY,
 		MoveIndicator.Type.BLUNDER
 	]
 	
-	if not indicator_type in allowed_types:
-		return  # Pas d'effet pour GOOD/BEST
+	if not indicator_type in special_types:
+		return  # Pas de losange pour GOOD/BEST/null
 	
-	# Paramètres selon type
-	var crater_intensity: float
-	var return_duration: float
+	# Couleurs selon type
 	var diamond_color: Color
 	
 	match indicator_type:
 		MoveIndicator.Type.BRILLIANT:
-			crater_intensity = 1.5
-			return_duration = 0.4
 			diamond_color = Color(0, 0.8, 1)  # Cyan
 		MoveIndicator.Type.EXCELLENT:
-			crater_intensity = 1.2
-			return_duration = 0.4
 			diamond_color = Color(0, 1, 0.3)  # Vert
 		MoveIndicator.Type.INACCURACY:
-			crater_intensity = 1.0
-			return_duration = 0.4
 			diamond_color = Color(1, 0.7, 0)  # Orange
 		MoveIndicator.Type.BLUNDER:
-			crater_intensity = 1.3
-			return_duration = 0.5  # Plus lent (micro-amélioration #3)
 			diamond_color = Color(1, 0.2, 0.2)  # Rouge
 		_:
-			return  # Par sécurité
+			return
 	
-	# 1. Cratère (impact physique)
-	if cloth_board_mesh:
-		cloth_board_mesh.deform_at(
-			int(grid_pos.x), 
-			int(grid_pos.y), 
-			crater_intensity,
-			return_duration
-		)
+	# Petit délai pour effet pro (micro-amélioration #1)
+	await get_tree().create_timer(0.03).timeout
 	
-	# 2. Losange lumineux - Délai 30ms (micro-amélioration #1)
-	if board_effects:
-		await get_tree().create_timer(0.03).timeout
-		board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)
+	# Afficher le losange lumineux
+	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)
