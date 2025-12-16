@@ -684,15 +684,18 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		# 🎨 EFFETS: Ondulation dorée + Highlight
 		if board_effects:
 			board_effects.highlight_square(p.new_pos, Color.GOLD, 1.0)
-			board_effects.create_ripple_effect(p.new_pos, 1.2)
+			# Couleur BRILLIANT (bleu) pour promotion
+			board_effects.create_ripple_effect(p.new_pos, 1.2, move_indicator.type_colors[MoveIndicator.Type.BRILLIANT])
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
 		play_sound("castle")
 		if camera_controller: camera_controller.dynamic_zoom("castle", target_3d_pos)
 		# 🎨 EFFETS: Double ondulation (roi + tour)
 		if board_effects:
-			board_effects.create_ripple_effect(p.pos, 0.8)
-			board_effects.create_ripple_effect(p.new_pos, 0.8)
+			# Couleur EXCELLENT (vert) pour roque
+			var castle_color = move_indicator.type_colors[MoveIndicator.Type.EXCELLENT]
+			board_effects.create_ripple_effect(p.pos, 0.8, castle_color)
+			board_effects.create_ripple_effect(p.new_pos, 0.8, castle_color)
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
 		var r = randf()
@@ -713,7 +716,9 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			board_effects.highlight_square(p.new_pos, Color.RED, 0.6)
 			# Pas d'ondulation pour les captures de pions (bruit visuel réduit)
 			if p.key != "P":
-				board_effects.create_ripple_effect(p.new_pos, 1.5)
+				# Couleur selon qualité du coup (BRILLIANT/BEST/GOOD)
+				var capture_color = move_indicator.type_colors.get(indicator_type, Color.WHITE)
+				board_effects.create_ripple_effect(p.new_pos, 1.5, capture_color)
 	else:
 		play_sound("move")
 		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD

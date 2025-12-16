@@ -1,23 +1,28 @@
 shader_type spatial;
 
-// Global uniforms for ripple effect
+// Global Ripple Parameters
 uniform vec2 ripple_center = vec2(0.0, 0.0);
-uniform float ripple_time = 0.0;
 uniform float ripple_amplitude = 0.0;
+uniform float ripple_time = 0.0;
 uniform float ripple_frequency = 5.0;
 uniform float ripple_decay = 0.5;
 uniform float ripple_speed = 5.0;
+uniform vec3 ripple_color = vec3(1.0, 1.0, 1.0); // Default white
 
 // Per-instance parameters
 instance uniform vec3 base_color : source_color = vec3(1.0);
-instance uniform vec4 highlight_color : source_color = vec4(0.0); // Alpha controls mix strength
+instance uniform vec4 highlight_color : source_color = vec4(0.0);
+
+// Varying to pass world position and wave intensity to fragment
+varying vec3 world_position;
+varying float wave_intensity;
 
 void vertex() {
 	// Get world position of the vertex
-	vec3 world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
 	
 	// Calculate distance from ripple center (in world XZ plane)
-	vec2 diff = world_pos.xz - ripple_center;
+	vec2 diff = world_position.xz - ripple_center;
 	float dist = length(diff);
 	
 	// Avoid division by zero
@@ -26,9 +31,6 @@ void vertex() {
 	// Wave params
 	// "Pulse" wave instead of continuous sine
 	// We want a single hump traveling outward.
-	// Function: -4 * x * exp(-2 * x^2) -> Derivative of Gaussian (Mexican Hat-ish)
-	// Let x = (dist - time_pos) * width
-	
 	// Function: -4 * x * exp(-2 * x^2) -> Derivative of Gaussian (Mexican Hat-ish)
 	// Let x = (dist - travel_pos) * width_factor
 	// We reuse ripple_frequency as "Wave Width Factor" (Inverse Size)
@@ -48,6 +50,9 @@ void vertex() {
 	
 	// Amplitude effective
 	float amp = ripple_amplitude * attenuation * 2.0; // Boosted
+	
+	// Calculate wave intensity for fragment shader (0 to 1)
+	wave_intensity = abs(wave_shape) * attenuation;
 	
 	if (abs(amp) > 0.001) {
 		// 1. Vertical Displacement
@@ -74,14 +79,18 @@ void vertex() {
 
 void fragment() {
 	// Base Color from Instance Uniform
-	ALBEDO = base_color.rgb;
+	vec3 base = base_color.rgb;
 	
-	// Highlight overlay
-	// Use pre-multiplied alpha or mix
+	// Apply ripple color tint based on wave intensity (passed from vertex shader)
+	// Boost visibility with stronger blend
+	vec3 tinted = mix(base, ripple_color, wave_intensity * 0.9);
+	
+	ALBEDO = tinted;
+	
+	// Highlight overlay (pour les highlights rouges/dorés)
 	ALBEDO = mix(ALBEDO, highlight_color.rgb, highlight_color.a);
 	
 	// PBR Properties for Visibility!
-	// Glossy plastic look to catch light on waves
 	ROUGHNESS = 0.2; 
 	METALLIC = 0.0;
 	SPECULAR = 0.5;

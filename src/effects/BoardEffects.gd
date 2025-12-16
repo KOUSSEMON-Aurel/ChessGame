@@ -68,7 +68,7 @@ func initialize_materials():
 # RIPPLE / ONDULATION (Global Shader)
 # ========================================
 
-func create_ripple_effect(center_pos_grid: Vector2, intensity: float = 1.0):
+func create_ripple_effect(center_pos_grid: Vector2, intensity: float = 1.0, wave_color: Color = Color.WHITE):
 	if not board_material: 
 		initialize_materials()
 		if not board_material: return
@@ -82,6 +82,7 @@ func create_ripple_effect(center_pos_grid: Vector2, intensity: float = 1.0):
 	
 	# Configurer le centre de l'onde dans le shader global
 	board_material.set_shader_parameter("ripple_center", world_center)
+	board_material.set_shader_parameter("ripple_color", Vector3(wave_color.r, wave_color.g, wave_color.b))
 	
 	var tween = _create_managed_tween()
 	tween.set_parallel(true)
