@@ -10,7 +10,7 @@ var board_tiles: Array = []
 # Matériau partagé pour toutes les tuiles
 var board_material: ShaderMaterial
 var ripple_shader = preload("res://effects/board_ripple.gdshader")
-var diamond_shader = preload("res://src/shaders/diamond_highlight.gdshader")
+var diamond_shader = preload("res://shaders/diamond_highlight.gdshader")
 
 # Liste des tweens actifs
 var active_tweens: Array[Tween] = []
