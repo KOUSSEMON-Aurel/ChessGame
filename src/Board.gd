@@ -701,9 +701,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			board_effects.highlight_square(p.new_pos, Color.GOLD, 1.0)
 			# Couleur BRILLIANT (bleu) pour promotion
 			board_effects.create_ripple_effect(p.new_pos, 1.2, move_indicator.type_colors[MoveIndicator.Type.BRILLIANT])
-		# 🧵 EFFET TISSU: Déformation forte pour promotion
-		if cloth_board_mesh:
-			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 1.5)
+
 	elif is_castling:
 		indicator_type = MoveIndicator.Type.EXCELLENT
 		play_sound("castle")
@@ -714,14 +712,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			var castle_color = move_indicator.type_colors[MoveIndicator.Type.EXCELLENT]
 			board_effects.create_ripple_effect(p.pos, 0.8, castle_color)
 			board_effects.create_ripple_effect(p.new_pos, 0.8, castle_color)
-		# 🧵 EFFET TISSU: Double déformation pour roque
-		if cloth_board_mesh:
-			cloth_board_mesh.deform_at(int(p.pos.x), int(p.pos.y), 0.8)
-			# Deuxième déformation légèrement décalée
-			var timer = get_tree().create_timer(0.15)
-			timer.timeout.connect(func(): 
-				if cloth_board_mesh: cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.8)
-			)
+
 	elif grid[end_pos_idx] != null or was_capture:
 		play_sound("capture")
 		var r = randf()
@@ -738,10 +729,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 				camera_controller.dynamic_zoom("capture", target_3d_pos)
 		
 
-		# 🧵 EFFET TISSU: Déformation pour TOUTE capture
-		if cloth_board_mesh:
-			print("🧵 Events: Capture détectée !")
-			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 1.0)
+
 	else:
 		play_sound("move")
 		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
@@ -749,10 +737,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		# 🎬 CAMERA: Zoom léger sur coup normal
 		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
 		
-		# 🧵 EFFET TISSU: Petite déformation pour coup normal (poser la pièce)
-		if cloth_board_mesh:
-			print("🧵 Events: Move normal")
-			cloth_board_mesh.deform_at(int(p.new_pos.x), int(p.new_pos.y), 0.4)
+
 	
 	if indicator_type != null:
 		show_indicator(p.new_pos, indicator_type)
@@ -800,9 +785,13 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		p.is_moving = true # 🌊 Empêcher la vague de modifier la hauteur pendant le saut
 		var _tween = PieceAnimations.play_animation(p.obj, anim_type, anim_params)
 		
-		# Réactiver la physique de vague à la fin
+		# Réactiver la physique de vague + Effets ChessFX à la fin
 		if _tween:
-			_tween.finished.connect(func(): p.is_moving = false)
+			_tween.finished.connect(func(): 
+				p.is_moving = false
+				# 🎯 Effets d'impact (cratère + losange) après atterrissage
+				_trigger_impact_effects(p.new_pos, indicator_type)
+			)
 		else:
 			p.is_moving = false
 		
@@ -1283,3 +1272,61 @@ func _process(delta):
 		
 		# Suivre la hauteur avec lissage rapide (quasi instantané mais sans jitter)
 		piece.obj.position.y = lerpf(piece.obj.position.y, target_height, delta * 25.0)
+
+func _trigger_impact_effects(grid_pos: Vector2, indicator_type):
+	"""
+	Déclenche les effets ChessFX (cratère + losange) pour les coups marquants.
+	Filtrage strict : uniquement BRILLIANT/EXCELLENT/INACCURACY/BLUNDER
+	"""
+	if indicator_type == null:
+		return
+	
+	# Filtre : seulement les emojis qui méritent un effet visuel
+	var allowed_types = [
+		MoveIndicator.Type.BRILLIANT,
+		MoveIndicator.Type.EXCELLENT,
+		MoveIndicator.Type.INACCURACY,
+		MoveIndicator.Type.BLUNDER
+	]
+	
+	if not indicator_type in allowed_types:
+		return  # Pas d'effet pour GOOD/BEST
+	
+	# Paramètres selon type
+	var crater_intensity: float
+	var return_duration: float
+	var diamond_color: Color
+	
+	match indicator_type:
+		MoveIndicator.Type.BRILLIANT:
+			crater_intensity = 1.5
+			return_duration = 0.4
+			diamond_color = Color(0, 0.8, 1)  # Cyan
+		MoveIndicator.Type.EXCELLENT:
+			crater_intensity = 1.2
+			return_duration = 0.4
+			diamond_color = Color(0, 1, 0.3)  # Vert
+		MoveIndicator.Type.INACCURACY:
+			crater_intensity = 1.0
+			return_duration = 0.4
+			diamond_color = Color(1, 0.7, 0)  # Orange
+		MoveIndicator.Type.BLUNDER:
+			crater_intensity = 1.3
+			return_duration = 0.5  # Plus lent (micro-amélioration #3)
+			diamond_color = Color(1, 0.2, 0.2)  # Rouge
+		_:
+			return  # Par sécurité
+	
+	# 1. Cratère (impact physique)
+	if cloth_board_mesh:
+		cloth_board_mesh.deform_at(
+			int(grid_pos.x), 
+			int(grid_pos.y), 
+			crater_intensity,
+			return_duration
+		)
+	
+	# 2. Losange lumineux - Délai 30ms (micro-amélioration #1)
+	if board_effects:
+		await get_tree().create_timer(0.03).timeout
+		board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)

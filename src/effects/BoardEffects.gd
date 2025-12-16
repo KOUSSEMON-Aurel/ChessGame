@@ -233,6 +233,69 @@ func reset_all_effects():
 				tile.set_instance_shader_parameter("highlight_color", Color(0,0,0,0))
 				tile.scale = Vector3.ONE # Reset pulse
 
+# ========================================
+# LOSANGE LUMINEUX ChessFX (◇ 45°)
+# ========================================
+
+func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float = 0.6):
+	"""
+	Affiche un losange lumineux orienté à 45° au-dessus de la case.
+	Bords brillants, intérieur vide, compositing additif.
+	"""
+	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
+	if tile_idx < 0 or tile_idx >= board_tiles.size(): return
+	
+	var tile = board_tiles[tile_idx]
+	if not tile: return
+	
+	# Créer le mesh losange (PlaneMesh orienté à 45°)
+	var diamond = MeshInstance3D.new()
+	var plane_mesh = PlaneMesh.new()
+	plane_mesh.size = Vector2(1.1, 1.1) * board_scale  # 1.1× la case (micro-amélioration #2)
+	diamond.mesh = plane_mesh
+	
+	# Charger le shader
+	var shader_mat = ShaderMaterial.new()
+	var shader = load("res://src/shaders/diamond_highlight.gdshader")
+	if not shader:
+		push_error("diamond_highlight.gdshader not found!")
+		diamond.queue_free()
+		return
+	
+	shader_mat.shader = shader
+	shader_mat.set_shader_parameter("highlight_color", Vector3(color.r, color.g, color.b))
+	shader_mat.set_shader_parameter("fade", 0.0)  # Commence invisible
+	shader_mat.set_shader_parameter("glow_intensity", 1.5)
+	
+	diamond.material_override = shader_mat
+	
+	# Position : au-dessus du tile, légèrement surélevé
+	tile.add_child(diamond)
+	diamond.position = Vector3(0, 1.5, 0)  # 1.5 unités au-dessus
+	diamond.rotation.x = -PI / 2  # Plan horizontal (vue de dessus)
+	diamond.rotation.z = PI / 4   # Rotation 45° (losange)
+	
+	# Animation : Fade in → pause → Fade out
+	var tween = _create_managed_tween()
+	
+	# Fade in rapide
+	tween.tween_method(
+		func(v): shader_mat.set_shader_parameter("fade", v),
+		0.0, 1.0, 0.1
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	
+	# Pause
+	tween.tween_interval(duration * 0.4)
+	
+	# Fade out doux
+	tween.tween_method(
+		func(v): shader_mat.set_shader_parameter("fade", v),
+		1.0, 0.0, duration * 0.5
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	
+	# Destruction à la fin
+	tween.tween_callback(func(): diamond.queue_free())
+
 func _create_managed_tween() -> Tween:
 	var t = create_tween()
 	active_tweens.append(t)

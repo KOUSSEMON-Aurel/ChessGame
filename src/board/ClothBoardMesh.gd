@@ -216,11 +216,12 @@ func get_height_at(world_pos: Vector3) -> float:
 	
 	return lerpf(h_top, h_bot, fz)
 
-func deform_at(board_x: int, board_y: int, intensity: float = 1.0):
+func deform_at(board_x: int, board_y: int, intensity: float = 1.0, return_duration: float = 0.4):
 	"""
-	Déforme le mesh localement autour de la case (board_x, board_y)
-	Manhattan distance ≤ 3
-	Retour avec 1 oscillation
+	Déformation cratère (ChessFX) :
+	- Impact local rapide (descente)
+	- Retour progressif et lisse
+	- PAS d'oscillation ni rebond
 	"""
 	# Annuler la déformation précédente si en cours
 	if deform_tween and deform_tween.is_valid():
@@ -229,8 +230,6 @@ func deform_at(board_x: int, board_y: int, intensity: float = 1.0):
 	is_deforming = true
 	
 	# Convertir coordonnées grille (0-7) en coordonnées mesh
-	# Le mesh a subdivisions+1 vertices par côté
-	# Une case = subdivisions / 8 vertices
 	var vertices_per_tile := float(subdivisions) / 8.0
 	var center_vx := int((board_x + 0.5) * vertices_per_tile)
 	var center_vy := int((board_y + 0.5) * vertices_per_tile)
@@ -239,12 +238,11 @@ func deform_at(board_x: int, board_y: int, intensity: float = 1.0):
 	var radius_tiles := 3
 	var radius_vertices := int(radius_tiles * vertices_per_tile)
 	
-	# Amplitude de déformation - proportionnelle à la taille des cases
-	# tile_size ≈ 70, on veut ~50% de déplacement vertical visible
-	var max_amplitude := tile_size * 0.5 * intensity
+	# Amplitude de déformation (DESCENTE = négative)
+	var max_depth := -tile_size * 0.5 * intensity  # Négatif = cratère
 	
-	print("🧵 Déformation: case(%d,%d) center_vertex(%d,%d) amplitude=%.1f" % [
-		board_x, board_y, center_vx, center_vy, max_amplitude
+	print("🎯 Cratère: case(%d,%d) profondeur=%.1f retour=%.2fs" % [
+		board_x, board_y, abs(max_depth), return_duration
 	])
 	
 	# Identifier les vertices à déformer
@@ -262,29 +260,23 @@ func deform_at(board_x: int, board_y: int, intensity: float = 1.0):
 				var weight := 1.0 - float(manhattan) / float(radius_vertices + 1)
 				affected_weights.append(weight)
 	
-	# Animation: Montée → Oscillation → Repos
+	# Animation CRATÈRE : Descente rapide → Retour lisse
 	if deform_tween and deform_tween.is_valid():
 		deform_tween.kill()
 	
 	deform_tween = create_tween()
 	
-	# Phase 1: Montée rapide (0.15s)
+	# Phase 1: Impact - Descente rapide (0.1s)
 	deform_tween.tween_method(
-		func(t): _apply_deformation(affected_indices, affected_weights, max_amplitude * t),
-		0.0, 1.0, 0.15
-	).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		func(t): _apply_deformation(affected_indices, affected_weights, max_depth * t),
+		0.0, 1.0, 0.1
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	
-	# Phase 2: Oscillation (0.3s) - descend plus bas que le repos
+	# Phase 2: Retour au repos - Lent et lisse (0.4s par défaut, 0.5s pour BLUNDER)
 	deform_tween.tween_method(
-		func(t): _apply_deformation(affected_indices, affected_weights, max_amplitude * t),
-		1.0, -0.3, 0.15
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	
-	# Phase 3: Retour au repos (0.2s)
-	deform_tween.tween_method(
-		func(t): _apply_deformation(affected_indices, affected_weights, max_amplitude * t),
-		-0.3, 0.0, 0.2
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		func(t): _apply_deformation(affected_indices, affected_weights, max_depth * t),
+		1.0, 0.0, return_duration
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	
 	deform_tween.finished.connect(func(): is_deforming = false)
 
