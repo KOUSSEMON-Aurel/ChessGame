@@ -176,10 +176,14 @@ func set_highlight(grid_x: int, grid_y: int, color: Color):
 	if not highlight_image:
 		return
 	
-	# Inverser Y car l'image a l'origine en haut-gauche
-	var img_y = 7 - grid_y
+	# Coordonnées dans la texture (potentiellement inversées selon UV du mesh)
+	# UV.x va de gauche à droite = a->h = 0->7 OK
+	# UV.y va de bas en haut dans Godot, mais l'image a origine haut-gauche
+	# grid_y=0 est en haut du plateau (rangée 8), donc correspond à img_y=0
+	var img_x = grid_x
+	var img_y = grid_y  # Pas d'inversion, on teste
 	
-	highlight_image.set_pixel(grid_x, img_y, color)
+	highlight_image.set_pixel(img_x, img_y, color)
 	highlight_texture.update(highlight_image)
 
 func clear_all_highlights():
