@@ -1356,10 +1356,7 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	"""
 	
 	if indicator_type == null or not board_effects:
-		print("💎 Losange IGNORÉ: type=%s effects=%s" % [indicator_type, board_effects != null])
 		return
-	
-	print("💎 _trigger_diamond_highlight appelé: pos=%s type=%s" % [grid_pos, indicator_type])
 	
 	# Filtre : seulement les emojis qui méritent un losange coloré
 	var special_types = [
@@ -1387,10 +1384,8 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 		_:
 			return
 	
-	# Petit délai pour effet pro (micro-amélioration #1)
+	# Petit délai pour effet pro
 	await get_tree().create_timer(0.03).timeout
-	
-	print("💎 Appel create_diamond_highlight: pos=%s col=%s" % [grid_pos, diamond_color])
 	
 	# Afficher le losange lumineux
 	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)

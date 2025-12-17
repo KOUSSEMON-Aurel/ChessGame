@@ -290,8 +290,8 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	var diamond = MeshInstance3D.new()
 	var plane_mesh = PlaneMesh.new()
 	
-	# Taille en unités 3D (légèrement plus grand qu'une case)
-	plane_mesh.size = Vector2(80, 80)
+	# Taille en unités 3D (couvre la case + déborde un peu)
+	plane_mesh.size = Vector2(110, 110)
 	diamond.mesh = plane_mesh
 	
 	# Shader
