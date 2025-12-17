@@ -314,8 +314,8 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	# Position au-dessus de la case
 	diamond.global_position = world_pos + Vector3(0, 5.0, 0)
 	
-	# Rotation 45° autour de Y pour faire un losange
-	diamond.rotation.y = PI / 4
+	# PAS de rotation - le shader dessine déjà un losange via distance Manhattan
+	# Tourner de 45° transformerait le losange en carré !
 	
 	# Animation
 	var tween = _create_managed_tween()
