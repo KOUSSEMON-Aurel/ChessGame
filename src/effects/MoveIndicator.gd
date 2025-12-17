@@ -6,7 +6,7 @@ enum Type { BRILLIANT, EXCELLENT, BEST, GOOD, INACCURACY, BLUNDER, INFO }
 
 # Configuration Couleur (Selon demande utilisateur)
 var type_colors = {
-	Type.BRILLIANT: Color("00bfff"), # Bleu (Deep Sky Blue)
+	Type.BRILLIANT: Color("2962ff"), # Bleu Roi (Plus bleu, moins vert/cyan)
 	Type.EXCELLENT: Color("2ecc71"), # Vert
 	Type.BEST:      Color("2ecc71"), # Vert
 	Type.GOOD:      Color("2ecc71"), # Vert
