@@ -840,15 +840,17 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 	else: set_halfmoves(halfmoves + 1)
 	if p.side == "B": set_fullmoves(fullmoves + 1)
 	
-	# Colorer le mouvement
-	var move_color = Color(1, 0.84, 0, 0.5) # Gold par défaut
+	clear_last_move_highlights()
+	
+	# Colorer le mouvement UNIQUEMENT si un emoji est présent (Demande utilisateur)
+	# Les coups normaux (70%) n'auront plus de highlight jaune
 	if indicator_type != null and move_indicator:
+		var move_color = Color(1, 0.84, 0, 0.5) # Fallback
 		if move_indicator.type_colors.has(indicator_type):
 			var c = move_indicator.type_colors[indicator_type]
-			move_color = Color(c.r, c.g, c.b, 0.6) # Un peu plus transparent
+			move_color = Color(c.r, c.g, c.b, 0.6)
 			
-	clear_last_move_highlights()
-	highlight_last_move(start_pos_idx, end_pos_idx, move_color)
+		highlight_last_move(start_pos_idx, end_pos_idx, move_color)
 	
 	cleared = false
 	
