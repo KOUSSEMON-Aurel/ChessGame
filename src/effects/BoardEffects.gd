@@ -260,25 +260,38 @@ func reset_all_effects():
 # LOSANGE LUMINEUX ChessFX (◇ 45°)
 # ========================================
 
+# Référence au Board pour accéder aux marqueurs
+var board_ref = null
+
+func set_board_reference(board):
+	"""Appelé par Board.gd pour passer la référence"""
+	board_ref = board
+
 func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float = 0.6):
 	"""
 	Affiche un losange lumineux orienté à 45° au-dessus de la case.
 	Bords brillants, intérieur vide, compositing additif.
 	"""
-	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
-	if tile_idx < 0 or tile_idx >= board_tiles.size(): 
+	if not board_ref or not board_ref.has_method("get_marker_position"):
+		push_warning("BoardEffects: pas de référence Board valide pour le losange")
 		return
 	
-	var tile = board_tiles[tile_idx]
-	if not tile: 
+	# Calculer l'index de la case
+	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
+	if tile_idx < 0 or tile_idx >= 64:
+		return
+	
+	# Obtenir la position 3D depuis les marqueurs
+	var world_pos = board_ref.get_marker_position(tile_idx)
+	if world_pos == Vector3.ZERO:
 		return
 	
 	# Créer le mesh losange (PlaneMesh orienté à 45°)
 	var diamond = MeshInstance3D.new()
 	var plane_mesh = PlaneMesh.new()
 	
-	# Taille absolue en unités 3D (pas relative à board_scale)
-	plane_mesh.size = Vector2(80, 80)  # Légèrement plus grand qu'une case (70×70)
+	# Taille en unités 3D (légèrement plus grand qu'une case)
+	plane_mesh.size = Vector2(80, 80)
 	diamond.mesh = plane_mesh
 	
 	# Shader
@@ -286,25 +299,23 @@ func create_diamond_highlight(grid_pos: Vector2, color: Color, duration: float =
 	shader_mat.shader = diamond_shader
 	shader_mat.set_shader_parameter("highlight_color", Vector3(color.r, color.g, color.b))
 	shader_mat.set_shader_parameter("fade", 0.0)
-	shader_mat.set_shader_parameter("glow_intensity", 2.0)  # Plus intense
+	shader_mat.set_shader_parameter("glow_intensity", 2.0)
 	
 	diamond.material_override = shader_mat
 	
-	# Position : dans le parent du plateau (pas enfant du tile)
-	# Utiliser la position globale du tile
-	var parent_3d = tile.get_parent()
-	if not parent_3d:
-		diamond.queue_free()
-		return
+	# Ajouter au SubViewport (même niveau que ClothBoardMesh)
+	var sub_vp = board_ref.get_node_or_null("Container/SubViewportContainer/SubViewport")
+	if sub_vp:
+		sub_vp.add_child(diamond)
+	else:
+		# Fallback : ajouter au self
+		add_child(diamond)
 	
-	parent_3d.add_child(diamond)
+	# Position au-dessus de la case
+	diamond.global_position = world_pos + Vector3(0, 5.0, 0)
 	
-	# Position absolue basée sur le tile
-	var tile_world_pos = tile.global_position
-	diamond.global_position = Vector3(tile_world_pos.x, tile_world_pos.y + 1.0, tile_world_pos.z)
-	
-	# Rotation UNIQUEMENT Z pour faire un losange (pas de X car PlaneMesh est déjà à plat)
-	diamond.rotation.y = PI / 4   # Rotation 45° autour de Y (pour tourner à plat)
+	# Rotation 45° autour de Y pour faire un losange
+	diamond.rotation.y = PI / 4
 	
 	# Animation
 	var tween = _create_managed_tween()

@@ -429,6 +429,7 @@ func draw_tiles_3d():
 	# Assigner les tiles au système d'effets
 	if board_effects:
 		board_effects.board_tiles = board_tiles_meshes
+		board_effects.set_board_reference(self)  # Pour le losange
 		print("✅ Board tiles assigned to BoardEffects (%d tiles)" % board_tiles_meshes.size())
 
 func get_grid_index(x: int, y: int):
