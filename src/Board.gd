@@ -848,7 +848,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		var move_color = Color(1, 0.84, 0, 0.5) # Fallback
 		if move_indicator.type_colors.has(indicator_type):
 			var c = move_indicator.type_colors[indicator_type]
-			move_color = Color(c.r, c.g, c.b, 0.6)
+			move_color = Color(c.r, c.g, c.b, 0.85) # Plus opaque pour garder la vraie couleur (Bleu reste Bleu)
 			
 		highlight_last_move(start_pos_idx, end_pos_idx, move_color)
 	
@@ -1371,20 +1371,18 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	if not indicator_type in special_types:
 		return  # Pas de losange pour GOOD/BEST/null
 	
-	# Couleurs selon type
-	var diamond_color: Color
-	
-	match indicator_type:
-		MoveIndicator.Type.BRILLIANT:
-			diamond_color = Color(0, 0.8, 1)  # Cyan
-		MoveIndicator.Type.EXCELLENT:
-			diamond_color = Color(0, 1, 0.3)  # Vert
-		MoveIndicator.Type.INACCURACY:
-			diamond_color = Color(1, 0.7, 0)  # Orange
-		MoveIndicator.Type.BLUNDER:
-			diamond_color = Color(1, 0.2, 0.2)  # Rouge
-		_:
-			return
+	# Couleurs selon type (via MoveIndicator pour cohérence totale)
+	var diamond_color = Color.WHITE
+	if move_indicator and move_indicator.type_colors.has(indicator_type):
+		diamond_color = move_indicator.type_colors[indicator_type]
+	else:
+		# Fallback manuel si nécessaire (ne devrait pas arriver avec le filtre ci-dessus)
+		match indicator_type:
+			MoveIndicator.Type.BRILLIANT: diamond_color = Color(0, 0.8, 1)
+			MoveIndicator.Type.EXCELLENT: diamond_color = Color(0, 1, 0.3)
+			MoveIndicator.Type.INACCURACY: diamond_color = Color(1, 0.7, 0)
+			MoveIndicator.Type.BLUNDER: diamond_color = Color(1, 0.2, 0.2)
+			_: return
 	
 	# Petit délai pour effet pro
 	await get_tree().create_timer(0.03).timeout
