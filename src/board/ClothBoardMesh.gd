@@ -181,10 +181,16 @@ func set_highlight(grid_x: int, grid_y: int, color: Color):
 	# UV.y va de bas en haut dans Godot, mais l'image a origine haut-gauche
 	# grid_y=0 est en haut du plateau (rangée 8), donc correspond à img_y=0
 	var img_x = grid_x
-	var img_y = grid_y  # Pas d'inversion, on teste
-	
+	var img_y = grid_y  # Pas d'inversion, on	
+	# Mettre à jour l'image
 	highlight_image.set_pixel(img_x, img_y, color)
+	
+	# Mettre à jour la texture
 	highlight_texture.update(highlight_image)
+	
+	# Forcer la réassignation du paramètre shader si nécessaire (pour certains drivers)
+	if shader_material:
+		shader_material.set_shader_parameter("highlight_texture", highlight_texture)
 
 func clear_all_highlights():
 	"""Efface tous les highlights"""
