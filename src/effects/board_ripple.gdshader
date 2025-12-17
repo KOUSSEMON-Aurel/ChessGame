@@ -90,6 +90,9 @@ void fragment() {
 	// Highlight overlay (pour les highlights rouges/dorés)
 	ALBEDO = mix(ALBEDO, highlight_color.rgb, highlight_color.a);
 	
+	// EMISSION pour être sûr que c'est visible (Glow)
+	EMISSION = highlight_color.rgb * highlight_color.a * 0.5;
+	
 	// PBR Properties for Visibility!
 	ROUGHNESS = 0.2; 
 	METALLIC = 0.0;
