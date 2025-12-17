@@ -173,6 +173,28 @@ func highlight_square(grid_pos: Vector2, color: Color, duration: float = 0.5):
 		peak_col, start_col, duration * 0.5
 	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 
+func set_permanent_highlight(grid_pos: Vector2, color: Color):
+	"""
+	Applique un highlight permanent (ex: last move) sans casser le shader
+	"""
+	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
+	if tile_idx < 0 or tile_idx >= board_tiles.size(): return
+	var tile = board_tiles[tile_idx]
+	if not tile: return
+	
+	if not board_material: initialize_materials()
+	
+	# Appliquer directement la couleur
+	tile.set_instance_shader_parameter("highlight_color", color)
+
+func clear_permanent_highlight(grid_pos: Vector2):
+	var tile_idx = int(grid_pos.x + grid_pos.y * 8)
+	if tile_idx < 0 or tile_idx >= board_tiles.size(): return
+	var tile = board_tiles[tile_idx]
+	if not tile: return
+	
+	tile.set_instance_shader_parameter("highlight_color", Color(0,0,0,0))
+
 # ========================================
 # PULSE (Scale Transform) - Checkmate
 # ========================================

@@ -839,8 +839,15 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 	else: set_halfmoves(halfmoves + 1)
 	if p.side == "B": set_fullmoves(fullmoves + 1)
 	
+	# Colorer le mouvement
+	var move_color = Color(1, 0.84, 0, 0.5) # Gold par défaut
+	if indicator_type != null and move_indicator:
+		if move_indicator.type_colors.has(indicator_type):
+			var c = move_indicator.type_colors[indicator_type]
+			move_color = Color(c.r, c.g, c.b, 0.6) # Un peu plus transparent
+			
 	clear_last_move_highlights()
-	highlight_last_move(start_pos_idx, end_pos_idx, p.side)
+	highlight_last_move(start_pos_idx, end_pos_idx, move_color)
 	
 	cleared = false
 	
@@ -880,20 +887,53 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 			# Nous utilisons un timer oneshot pour ne pas bloquer
 			get_tree().create_timer(1.5).timeout.connect(func(): camera_controller.reset_camera())
 
-func highlight_last_move(start_idx, end_idx, side):
-	last_move_highlights = [start_idx, end_idx]
-	for idx in last_move_highlights:
-		if idx >= 0 and idx < 64 and board_tiles_meshes[idx] != null:
-			var tile = board_tiles_meshes[idx]
-			if side == "W":
-				tile.material_override = mat_last_move_white
-			else:
-				tile.material_override = mat_last_move_black
+func highlight_last_move(start_idx, end_idx, color: Color = Color(1, 1, 0, 0.4)):
+	last_move_highlights = []
+	
+	# Coins de départ et d'arrivée
+	var start_pos = Vector2(start_idx % 8, start_idx / 8)
+	var end_pos = Vector2(end_idx % 8, end_idx / 8)
+	
+	# Ajouter départ et arrivée
+	last_move_highlights.append(start_idx)
+	last_move_highlights.append(end_idx)
+	
+	# Calculer le chemin (trajet) - Sauf pour Cavalier qui saute
+	var diff = end_pos - start_pos
+	var steps = int(max(abs(diff.x), abs(diff.y)))
+	
+	# Si c'est un mouvement linéaire (ligne, colonne, diagonale)
+	# Le cavalier a steps != max(dx, dy) sauf si dx ou dy est 0, mais cavalier fait (1,2) ou (2,1).
+	# Cavalier : |dx|=1,|dy|=2 -> steps=2. Mais diff n'est pas multiple entier de direction unitaire simple.
+	# Vérif: abs(dx) == abs(dy) (diag) OU dx=0 OU dy=0 (ortho)
+	var is_linear = (abs(diff.x) == abs(diff.y)) or (diff.x == 0) or (diff.y == 0)
+	
+	if is_linear and steps > 1:
+		var dir = diff / steps
+		for i in range(1, steps):
+			var inter_pos = start_pos + dir * i
+			var idx = int(inter_pos.x + inter_pos.y * 8)
+			if not idx in last_move_highlights:
+				last_move_highlights.append(idx)
+	
+	# Appliquer la couleur via BoardEffects (Shader)
+	if board_effects:
+		for idx in last_move_highlights:
+			var pos = Vector2(idx % 8, idx / 8)
+			board_effects.set_permanent_highlight(pos, color)
+	else:
+		# Fallback (ancien code, peu probable d'être utilisé)
+		pass
 
 func clear_last_move_highlights():
-	for idx in last_move_highlights:
-		highlight_square(idx, false)
+	if board_effects:
+		for idx in last_move_highlights:
+			var pos = Vector2(idx % 8, idx / 8)
+			board_effects.clear_permanent_highlight(pos)
+	
 	last_move_highlights = []
+
+
 
 func is_king_checked(p: Piece):
 	var side = p.side
