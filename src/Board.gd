@@ -800,8 +800,8 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 				p.is_moving = false
 				# 🎯 Cratère modulé selon emoji (ChessFX)
 				if cloth_board_mesh:
-					# Intensité selon rareté de l'emoji (base augmentée pour visibilité)
-					var crater_intensity = 1.0  # Base visible pour tous
+					# Intensité selon rareté de l'emoji
+					var crater_intensity = 0.8  # Augmenté pour visibilité (était 0.4)
 					var return_time = 0.35
 					
 					if indicator_type == MoveIndicator.Type.BRILLIANT:
@@ -848,12 +848,9 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 		var move_color = Color(1, 0.84, 0, 0.5) # Fallback
 		if move_indicator.type_colors.has(indicator_type):
 			var c = move_indicator.type_colors[indicator_type]
-			move_color = Color(c.r, c.g, c.b, 0.85)
-		
-		print("🎨 Highlight: type=%s couleur=%s start=%d end=%d" % [indicator_type, move_color, start_pos_idx, end_pos_idx])
+			move_color = Color(c.r, c.g, c.b, 0.85) # Plus opaque pour garder la vraie couleur (Bleu reste Bleu)
+			
 		highlight_last_move(start_pos_idx, end_pos_idx, move_color)
-	else:
-		print("⚪ Pas de highlight: indicator_type=%s" % [indicator_type])
 	
 	cleared = false
 	
@@ -1389,8 +1386,6 @@ func _trigger_diamond_highlight(grid_pos: Vector2, indicator_type):
 	
 	# Petit délai pour effet pro
 	await get_tree().create_timer(0.03).timeout
-	
-	print("💎 Losange: pos=%s couleur=%s" % [grid_pos, diamond_color])
 	
 	# Afficher le losange lumineux
 	board_effects.create_diamond_highlight(grid_pos, diamond_color, 0.6)
