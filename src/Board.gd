@@ -916,17 +916,23 @@ func highlight_last_move(start_idx, end_idx, color: Color = Color(1, 1, 0, 0.4))
 			if not idx in last_move_highlights:
 				last_move_highlights.append(idx)
 	
-	# Appliquer la couleur via BoardEffects (Shader)
-	if board_effects:
+	# Appliquer la couleur via ClothBoardMesh (Shader texture)
+	if cloth_board_mesh:
 		for idx in last_move_highlights:
-			var pos = Vector2(idx % 8, idx / 8)
-			board_effects.set_permanent_highlight(pos, color)
+			var grid_x = idx % 8
+			var grid_y = idx / 8
+			cloth_board_mesh.set_highlight(grid_x, grid_y, color)
 	else:
-		# Fallback (ancien code, peu probable d'être utilisé)
-		pass
+		# Fallback vers board_effects si pas de ClothBoardMesh
+		if board_effects:
+			for idx in last_move_highlights:
+				var pos = Vector2(idx % 8, idx / 8)
+				board_effects.set_permanent_highlight(pos, color)
 
 func clear_last_move_highlights():
-	if board_effects:
+	if cloth_board_mesh:
+		cloth_board_mesh.clear_all_highlights()
+	elif board_effects:
 		for idx in last_move_highlights:
 			var pos = Vector2(idx % 8, idx / 8)
 			board_effects.clear_permanent_highlight(pos)

@@ -21,6 +21,11 @@ var tile_size: float = 70.0
 var is_deforming := false
 var deform_tween: Tween
 
+# Highlight system (texture 8x8)
+var highlight_image: Image
+var highlight_texture: ImageTexture
+var shader_material: ShaderMaterial
+
 func _ready():
 	# 🧱 Reset transform complet (Règle n°3)
 	transform = Transform3D.IDENTITY
@@ -142,11 +147,48 @@ func generate():
 	_build_mesh(arr_mesh)
 	self.mesh = arr_mesh
 	
+	# Initialiser le système de highlight
+	_init_highlight_texture()
+	
 	@warning_ignore("integer_division")
 	print("✅ ClothBoardMesh généré: %d vertices, %d triangles" % [
 		original_vertices.size(), 
 		indices.size() / 3
 	])
+
+func _init_highlight_texture():
+	"""Crée la texture 8x8 pour les highlights et l'assigne au shader"""
+	# Créer une image 8x8 transparente
+	highlight_image = Image.create(8, 8, false, Image.FORMAT_RGBA8)
+	highlight_image.fill(Color(0, 0, 0, 0))  # Transparent
+	
+	# Créer la texture
+	highlight_texture = ImageTexture.create_from_image(highlight_image)
+	
+	# Récupérer le material du mesh et lui assigner la texture
+	if material_override and material_override is ShaderMaterial:
+		shader_material = material_override as ShaderMaterial
+		shader_material.set_shader_parameter("highlight_texture", highlight_texture)
+		print("✅ Highlight texture assignée au ClothBoardMesh")
+
+func set_highlight(grid_x: int, grid_y: int, color: Color):
+	"""Définit la couleur de highlight d'une case"""
+	if not highlight_image:
+		return
+	
+	# Inverser Y car l'image a l'origine en haut-gauche
+	var img_y = 7 - grid_y
+	
+	highlight_image.set_pixel(grid_x, img_y, color)
+	highlight_texture.update(highlight_image)
+
+func clear_all_highlights():
+	"""Efface tous les highlights"""
+	if not highlight_image:
+		return
+	
+	highlight_image.fill(Color(0, 0, 0, 0))
+	highlight_texture.update(highlight_image)
 
 func _build_mesh(arr_mesh: ArrayMesh):
 	"""Reconstruit le mesh avec les vertices actuels"""
