@@ -184,6 +184,8 @@ func set_permanent_highlight(grid_pos: Vector2, color: Color):
 	
 	if not board_material: initialize_materials()
 	
+	print("🖍️ Highlight permanent: pos=%s col=%s" % [grid_pos, color])
+	
 	# Appliquer directement la couleur
 	tile.set_instance_shader_parameter("highlight_color", color)
 
