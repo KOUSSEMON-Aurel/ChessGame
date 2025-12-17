@@ -30,11 +30,16 @@ void fragment() {
 	vec2 highlight_uv = (vec2(float(cx), float(cy)) + 0.5) / 8.0;
 	vec4 highlight = texture(highlight_texture, highlight_uv);
 	
-	// Mélanger base et highlight selon l'alpha
-	vec3 final_color = mix(base_color, highlight.rgb, highlight.a);
+	// Couleur finale : on remplace COMPLÈTEMENT la base si alpha > 0
+	// Pas de mix() qui dilue la couleur avec le gris du plateau
+	vec3 final_color = base_color;
+	if (highlight.a > 0.01) {
+		// Couleur saturée avec léger fond visible
+		final_color = mix(base_color, highlight.rgb, highlight.a * 0.9);
+	}
 	
-	// Ajout d'EMISSION pour que le highlight soit bien visible
-	EMISSION = highlight.rgb * highlight.a * 0.4;
+	// EMISSION forte pour que la couleur "brille" (Cyan reste Cyan, pas verdâtre)
+	EMISSION = highlight.rgb * highlight.a * 0.6;
 	
 	ALBEDO = final_color;
 }

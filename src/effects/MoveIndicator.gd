@@ -6,12 +6,12 @@ enum Type { BRILLIANT, EXCELLENT, BEST, GOOD, INACCURACY, BLUNDER, INFO }
 
 # Configuration Couleur (Selon demande utilisateur)
 var type_colors = {
-	Type.BRILLIANT: Color("2962ff"), # Bleu Roi (Plus bleu, moins vert/cyan)
-	Type.EXCELLENT: Color("2ecc71"), # Vert
+	Type.BRILLIANT: Color("00d4ff"), # Cyan / Bleu Électrique (Source unique)
+	Type.EXCELLENT: Color("2ecc71"), # Vert Vif
 	Type.BEST:      Color("2ecc71"), # Vert
 	Type.GOOD:      Color("2ecc71"), # Vert
-	Type.INACCURACY:Color("f1c40f"), # Jaune
-	Type.BLUNDER:   Color("e74c3c"), # Rouge
+	Type.INACCURACY:Color("ff9500"), # Orange
+	Type.BLUNDER:   Color("ff3b30"), # Rouge Vif
 	Type.INFO:      Color.WHITE
 }
 
