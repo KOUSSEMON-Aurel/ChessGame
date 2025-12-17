@@ -2,7 +2,7 @@ extends Node2D
 
 class_name MoveIndicator
 
-enum Type { BRILLIANT, EXCELLENT, BEST, GOOD, INACCURACY, BLUNDER, INFO }
+enum Type { BRILLIANT, EXCELLENT, BEST, GOOD, INACCURACY, BLUNDER, INFO, BOOK }
 
 # Configuration Couleur (Selon demande utilisateur)
 var type_colors = {
@@ -12,7 +12,8 @@ var type_colors = {
 	Type.GOOD:      Color("2ecc71"), # Vert
 	Type.INACCURACY:Color("f1c40f"), # Jaune
 	Type.BLUNDER:   Color("e74c3c"), # Rouge
-	Type.INFO:      Color.WHITE
+	Type.INFO:      Color.WHITE,
+	Type.BOOK:      Color("9b59b6")  # Violet/Amethyst
 }
 
 var sprites = {
@@ -22,7 +23,8 @@ var sprites = {
 	Type.GOOD:      "res://assets/indicators/good.png",
 	Type.INACCURACY:"res://assets/indicators/inaccuracy.png",
 	Type.BLUNDER:   "res://assets/indicators/blunder.png",
-	Type.INFO:      "res://assets/indicators/best.png"
+	Type.INFO:      "res://assets/indicators/best.png",
+	Type.BOOK:      "res://assets/indicators/book.png" # Si pas dispo, fallback manuel nécessaire ou création ressource
 }
 
 func _ready():
