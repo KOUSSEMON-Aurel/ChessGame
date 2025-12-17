@@ -741,11 +741,7 @@ func move_piece(p: Piece, _engine_turn: bool, was_capture: bool = false):
 
 	else:
 		play_sound("move")
-		# Distribution des emojis pour coups normaux (Feedback constant)
-		var r = randf()
-		if r < 0.1: indicator_type = MoveIndicator.Type.BOOK      # 10% Ouverture
-		elif r < 0.4: indicator_type = MoveIndicator.Type.BEST    # 30% Best
-		else: indicator_type = MoveIndicator.Type.GOOD            # 60% Good (Défaut)
+		if randf() < 0.3: indicator_type = MoveIndicator.Type.GOOD
 		
 		# 🎬 CAMERA: Zoom léger sur coup normal
 		if camera_controller: camera_controller.dynamic_zoom("normal", target_3d_pos)
