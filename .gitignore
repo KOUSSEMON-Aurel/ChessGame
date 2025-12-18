@@ -1,9 +1,24 @@
 # 
 # Godot-specific ignores
-src/.godot/
-.import/
+.godot/
+/android/
+/ios/
+
+# Heavy Binary Artifacts (GitHub limit < 100MB)
+*.apk
+*.aab
+*.zip
+*.tar.gz
+*.7z
+*.so
+*.aar
+*.exe
+*.bin
+src/android/plugins/StockfishEngine/libs/armeabi-v7a/libstockfish.so
+src/android/build/build/
+src/builds/
 export.cfg
-export_presets.cfg
+
 
 # Mono-specific ignores
 .mono/

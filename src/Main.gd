@@ -431,7 +431,7 @@ func handle_state(event, msg = ""):
 						OS.alert("Erreur de connexion IA: " + str(status.error), "Erreur IA")
 				NEW_GAME:
 					if game_mode == 0 or game_mode == 2: # Vs AI or AI vs AI
-						if engine.server_pid > 0:
+						if engine.is_engine_ready():
 							engine.send_packet("ucinewgame")
 							engine.send_packet("isready")
 							state = STARTING
