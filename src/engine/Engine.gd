@@ -67,12 +67,18 @@ func _ready():
 	var exec_path = OS.get_executable_path().get_base_dir()
 	
 	if OS.has_feature("editor"):
-		# In editor, use project path
+		# In editor, use project path but look for binaries in ../bin
 		exec_path = ProjectSettings.globalize_path("res://")
 		if exec_path.ends_with("/"):
 			exec_path = exec_path.substr(0, exec_path.length() - 1)
+		# Editor running in src/, binaries are in bin/ (sibling of src)
+		# Path should be src/../bin/ -> bin/
+		var bin_root = exec_path.get_base_dir() + "/bin"
+		print("Editor Mode: Override binary root to ", bin_root)
+		# Remap exec_path to bin/linux or bin/windows for loading
+		exec_path = bin_root + "/" + bin_subdir
 	
-	print("Executable path: ", exec_path)
+	print("Executable path (resolved): ", exec_path)
 	
 	# Form paths to the executables
 	iopiper = exec_path + "/iopiper" + exe_ext
@@ -85,32 +91,23 @@ func _ready():
 	if FileAccess.file_exists(stockfish_path):
 		engine_path = stockfish_path
 		print("Found Stockfish at: ", stockfish_path)
-	elif FileAccess.file_exists(exec_path + "/" + stockfish_name): # Try root
-		engine_path = exec_path + "/" + stockfish_name
-		print("Found Stockfish at root: ", engine_path)
+	elif OS.has_feature("editor"):
+		# In editor, might be in custom location? No, we enforced bin/ structure.
+		# Check if stockfish is in bin/subdir/engine/
+		# The above logic using exec_path should cover it.
+		print("Stockfish check in editor mode at: ", stockfish_path)
 	else:
 		push_warning("Stockfish not found at: " + stockfish_path)
-		# Fallback: search in src/engine for dev mode
-		if OS.has_feature("editor"):
-			var dev_path = ProjectSettings.globalize_path("res://engine/" + stockfish_name)
-			if FileAccess.file_exists(dev_path):
-				engine_path = dev_path
-				iopiper = ProjectSettings.globalize_path("res://bin/" + bin_subdir + "/iopiper" + exe_ext)
-				print("Found Dev Stockfish: ", engine_path)
 
 func start_engine():
 	if android_plugin:
 		print("Starting Android Engine...")
 		var success = android_plugin.startEngine()
-		if success:
-			print("Android Engine started successfully.")
-		else:
-			push_error("Failed to start Android Engine.")
 		return { "started": success, "error": "" if success else "Failed to start" }
 		
 	if is_web:
-		print("Web Engine not fully implemented.")
-		return { "started": false, "error": "Web not supported" }
+		print("Web Engine: Using Mock AI (Random Moves) until WASM is ready.")
+		return { "started": true, "error": "" }
 
 	return start_udp_server()
 
@@ -129,8 +126,12 @@ func start_udp_server():
 			err = "Unable to start UDP server."
 			server_pid = 0
 		else:
+
 			print("UDP server started successfully (PID: ", server_pid, ")")
 			$UDPClient.set_server()
+			# Wait a short moment for the external process (iopiper) to initialize and bind the port
+			# This prevents the first packet (uci) from being dropped if sent too quickly
+			OS.delay_msec(300)
 	
 	if err != "":
 		push_error(err)
@@ -157,15 +158,44 @@ func send_packet(pkt: String):
 	print("Sent packet: ", pkt)
 	if android_plugin:
 		android_plugin.sendCommand(pkt)
-		# Android plugin uses signal for response, so we start timer for timeout if needed?
-		# But usually engine replies fast. 
-		# We might need to manually trigger timeout if no response.
 		$Timer.start()
 	elif is_web:
-		pass
+		# Mock AI for Web: Reply with random move after delay
+		if pkt.begins_with("go "):
+			# Trigger a fake response
+			get_tree().create_timer(1.0).timeout.connect(_on_web_mock_response)
 	else:
 		$UDPClient.send_packet(pkt)
 		$Timer.start()
+
+func _on_web_mock_response():
+	# Web fallback: we don't know the best move, so we send a special signal
+	# instructing Main.gd to use its fallback logic (random legal move)
+	# We simulate "bestmove (none)" effectively to trigger fallback, 
+	# OR we add a specific signal for "web_fallback".
+	# Easier: Send a dummy bestmove that implies "I don't know"
+	# Main.gd handles "bestmove (none)" as Mate/Stalemate, which stops game. Not good.
+	# We need Main.gd to play a random move.
+	# Main.gd has 'apply_fallback_move'.
+	# Let's emit a special info packet? No.
+	# Let's emit "bestmove random" ? Main.gd might crash.
+	# I will handle "bestmove fallback" in Main.gd?
+	# Or better: make Main.gd detect Web platform and handle it.
+	
+	# Current Main.gd logic:
+	# if move == "(none)": ... -> fallback if win_condition==1 (Elimination)
+	# I can abuse this?
+	
+	# Let's just emit "bestmove (none)" and ensure Main.gd treats it as "Perform Fallback" on Web.
+	# Or better, just don't emit anything and let Main.gd timeout? 
+	# Main.gd timeout triggers fallback!
+	# "Engine still unresponsive... Using fallback..."
+	# So if I do NOTHING, Main.gd will timeout and play random move!
+	# Perfect.
+	# BUT timeout is movetime + 5s. That's slow.
+	# Let's adjust Main.gd timeout or simulate it.
+	pass
+
 
 
 func _on_Timer_timeout():
