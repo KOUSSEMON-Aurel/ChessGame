@@ -160,13 +160,19 @@ func send_packet(pkt: String):
 		android_plugin.sendCommand(pkt)
 		$Timer.start()
 	elif is_web:
-		# Mock AI for Web: Reply with random move after delay
-		if pkt.begins_with("go "):
-			# Trigger a fake response
+		# Mock AI for Web: Handle UCI handshake and moves
+		if pkt == "uci":
+			# Reply with ID and uciok
+			get_tree().create_timer(0.1).timeout.connect(func(): 
+				emit_signal("done", true, "id name MockAI")
+				emit_signal("done", true, "uciok")
+			)
+		elif pkt == "isready":
+			# Reply with readyok
+			get_tree().create_timer(0.1).timeout.connect(func(): emit_signal("done", true, "readyok"))
+		elif pkt.begins_with("go "):
+			# Trigger a fake response for move generation
 			get_tree().create_timer(1.0).timeout.connect(_on_web_mock_response)
-	else:
-		$UDPClient.send_packet(pkt)
-		$Timer.start()
 
 func _on_web_mock_response():
 	# Web fallback: we simulates "bestmove (none)" to trigger Main.gd's fallback logic
