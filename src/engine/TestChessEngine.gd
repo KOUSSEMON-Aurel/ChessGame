@@ -1,9 +1,9 @@
 extends Control
 
-func _ready():
-	var status = $Engine.start_udp_server()
+func _on_Start_pressed():
+	var status = $Engine.start_engine()
 	if status.started:
-		print("PID of server: %d" % $Engine.server_pid)
+		print("Wrapper started!")
 		await get_tree().idle_frame
 		$Engine.send_packet("uci")
 	else:

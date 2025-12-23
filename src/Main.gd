@@ -420,7 +420,7 @@ func handle_state(event, msg = ""):
 						OS.execute("killall", ["-9", "stockfish-linux-x64"])
 						await get_tree().create_timer(0.5).timeout # Pause pour être sûr
 					
-					var status = engine.start_udp_server()
+					var status = engine.start_engine()
 					if status.started:
 						await get_tree().create_timer(1.0).timeout
 						engine.send_packet("uci")

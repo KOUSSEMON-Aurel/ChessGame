@@ -3,11 +3,13 @@ extends Node
 class_name UCIEngine
 
 # Provide functionality for interactions with a Chess Engine
-# Cross-platform support for Linux, Windows, and macOS
+# Cross-platform support for Linux, Windows, macOS, Android, and Web
 
 var iopiper # Path to UDP to CLI app bridge in the bin directory
-var engine # Path to installed Chess Engine in the engine directory
+var engine_path # Path to installed Chess Engine in the engine directory
 var server_pid = 0
+var android_plugin = null
+var is_web = false
 
 signal done
 
@@ -18,7 +20,23 @@ func _ready():
 	var exe_ext = ""
 	var stockfish_name = ""
 	
-	# Platform-specific configuration
+	print("Initializing Engine for platform: ", platform)
+
+	if platform == "Android":
+		if Engine.has_singleton("StockfishEngine"):
+			android_plugin = Engine.get_singleton("StockfishEngine")
+			android_plugin.connect("engine_output", _on_android_engine_output)
+			print("Android StockfishEngine plugin found.")
+		else:
+			push_error("StockfishEngine plugin NOT found on Android!")
+		return
+		
+	if platform == "Web":
+		is_web = true
+		print("Web platform detected. Engine support limited (WASM required).")
+		return
+	
+	# Desktop Platform-specific configuration
 	match platform:
 		"Windows":
 			bin_subdir = "windows"
@@ -31,7 +49,6 @@ func _ready():
 		"macOS", "OSX":
 			bin_subdir = "macos"
 			exe_ext = ""
-			# Detect macOS architecture
 			var output = []
 			OS.execute("uname", ["-m"], output)
 			var arch = output[0].strip_edges()
@@ -43,84 +60,91 @@ func _ready():
 			push_error("Unsupported platform: " + platform)
 			return
 	
-	print("Detected platform: ", platform, " (bin subdir: ", bin_subdir, ")")
-	
-	# Get the base path of the application
-	# Use ProjectSettings to get the correct resource path
+	# Determine base path
 	var base_path = ProjectSettings.globalize_path("res://")
+	# In exported builds, res:// is often mapped to the PCK location.
+	# We need the directory containing the executable.
+	var exec_path = OS.get_executable_path().get_base_dir()
 	
-	# Remove trailing slash if present
-	if base_path.ends_with("/") or base_path.ends_with("\\"):
-		base_path = base_path.substr(0, base_path.length() - 1)
+	if OS.has_feature("editor"):
+		# In editor, use project path
+		exec_path = ProjectSettings.globalize_path("res://")
+		if exec_path.ends_with("/"):
+			exec_path = exec_path.substr(0, exec_path.length() - 1)
 	
-	# Check if we're running from the src directory (development mode)
-	var src_pos = base_path.find("src")
-	if src_pos > -1:
-		base_path = base_path.substr(0, src_pos - 1)
-	
-	print("Base path: ", base_path)
+	print("Executable path: ", exec_path)
 	
 	# Form paths to the executables
-	# Use forward slash for consistency (works on all platforms)
-	iopiper = base_path + "/bin/" + bin_subdir + "/iopiper" + exe_ext
+	iopiper = exec_path + "/iopiper" + exe_ext
 	
-	# Try to find Stockfish in the engine directory
-	var engine_dir = base_path + "/engine/"
+	# Try to find Stockfish
+	# 1. Look in ./engine/ (relative to executable)
+	var engine_dir = exec_path + "/engine/"
 	var stockfish_path = engine_dir + stockfish_name
 	
-	# First, try the platform-specific stockfish name
 	if FileAccess.file_exists(stockfish_path):
-		engine = stockfish_path
-		print("Found Stockfish: ", stockfish_path)
+		engine_path = stockfish_path
+		print("Found Stockfish at: ", stockfish_path)
+	elif FileAccess.file_exists(exec_path + "/" + stockfish_name): # Try root
+		engine_path = exec_path + "/" + stockfish_name
+		print("Found Stockfish at root: ", engine_path)
 	else:
-		# Fallback: search for any stockfish executable in the engine directory
-		print("Platform-specific Stockfish not found at: ", stockfish_path)
-		print("Searching for any Stockfish binary in: ", engine_dir)
-		
-		var dir = DirAccess.open(engine_dir)
-		if dir != null:
-			dir.list_dir_begin()
-			var file_name = dir.get_next()
-			while file_name != "":
-				# Look for files starting with "stockfish" that are not directories
-				if file_name.begins_with("stockfish") and not dir.current_is_dir():
-					var candidate = engine_dir + file_name
-					# Skip .tar, .zip, .gz files
-					if not file_name.ends_with(".tar") and not file_name.ends_with(".zip") and not file_name.ends_with(".gz"):
-						engine = candidate
-						print("Found Stockfish: ", candidate)
-						break
-				file_name = dir.get_next()
-			dir.list_dir_end()
-	
-	if engine == null or engine == "":
-		push_warning("Stockfish engine not found in: " + engine_dir)
-		push_warning("Please run setup.sh (Linux/Mac) or setup.bat (Windows) to download Stockfish")
+		push_warning("Stockfish not found at: " + stockfish_path)
+		# Fallback: search in src/engine for dev mode
+		if OS.has_feature("editor"):
+			var dev_path = ProjectSettings.globalize_path("res://engine/" + stockfish_name)
+			if FileAccess.file_exists(dev_path):
+				engine_path = dev_path
+				iopiper = ProjectSettings.globalize_path("res://bin/" + bin_subdir + "/iopiper" + exe_ext)
+				print("Found Dev Stockfish: ", engine_path)
 
+func start_engine():
+	if android_plugin:
+		print("Starting Android Engine...")
+		var success = android_plugin.startEngine()
+		if success:
+			print("Android Engine started successfully.")
+		else:
+			push_error("Failed to start Android Engine.")
+		return { "started": success, "error": "" if success else "Failed to start" }
+		
+	if is_web:
+		print("Web Engine not fully implemented.")
+		return { "started": false, "error": "Web not supported" }
+
+	return start_udp_server()
 
 func start_udp_server():
 	var err = ""
-	# Check for existence of the executables
-	if !FileAccess.file_exists(iopiper):
-		err = "Missing iopiper at: " + iopiper + "\nPlease run the setup script for your platform."
-	elif !FileAccess.file_exists(engine):
-		err = "Missing chess engine at: " + str(engine) + "\nPlease run the setup script for your platform."
+	if !iopiper or !FileAccess.file_exists(iopiper):
+		err = "Missing iopiper at: " + str(iopiper)
+	elif !engine_path or !FileAccess.file_exists(engine_path):
+		err = "Missing chess engine at: " + str(engine_path)
 	else:
 		print("Starting UDP server...")
 		print("  iopiper: ", iopiper)
-		print("  engine: ", engine)
-		server_pid = OS.create_process(iopiper, [engine])
-		if server_pid < 400: # PIDs are likely above this value and error codes below it
-			err = "Unable to start UDP server with error code: " + str(server_pid)
+		print("  engine: ", engine_path)
+		server_pid = OS.create_process(iopiper, [engine_path])
+		if server_pid < 0:
+			err = "Unable to start UDP server."
 			server_pid = 0
 		else:
 			print("UDP server started successfully (PID: ", server_pid, ")")
 			$UDPClient.set_server()
+	
+	if err != "":
+		push_error(err)
+		
 	return { "started": err == "", "error": err }
 
 
+func stop_engine():
+	if android_plugin:
+		android_plugin.stopEngine()
+	elif server_pid > 0:
+		stop_udp_server()
+
 func stop_udp_server():
-	# Return 0 or an error code
 	var ret_code = 0
 	if server_pid > 0:
 		print("Stopping UDP server (PID: ", server_pid, ")")
@@ -131,12 +155,22 @@ func stop_udp_server():
 
 func send_packet(pkt: String):
 	print("Sent packet: ", pkt)
-	$UDPClient.send_packet(pkt)
-	$Timer.start()
+	if android_plugin:
+		android_plugin.sendCommand(pkt)
+		# Android plugin uses signal for response, so we start timer for timeout if needed?
+		# But usually engine replies fast. 
+		# We might need to manually trigger timeout if no response.
+		$Timer.start()
+	elif is_web:
+		pass
+	else:
+		$UDPClient.send_packet(pkt)
+		$Timer.start()
 
 
 func _on_Timer_timeout():
-	stop_udp_server()
+	# Timeout waiting for response
+	# Don't stop engine on timeout, just emit empty
 	emit_signal("done", false, "")
 
 
@@ -144,6 +178,9 @@ func _on_UDPClient_got_packet(pkt):
 	$Timer.stop()
 	emit_signal("done", true, pkt)
 
+func _on_android_engine_output(pkt):
+	$Timer.stop()
+	emit_signal("done", true, pkt)
 
 func _on_Engine_tree_exited():
-	stop_udp_server()
+	stop_engine()
