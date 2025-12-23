@@ -60,8 +60,8 @@ func _ready():
 			push_error("Unsupported platform: " + platform)
 			return
 	
-	# Determine base path
-	var base_path = ProjectSettings.globalize_path("res://")
+	# Determine execution path
+
 	# In exported builds, res:// is often mapped to the PCK location.
 	# We need the directory containing the executable.
 	var exec_path = OS.get_executable_path().get_base_dir()
@@ -169,32 +169,9 @@ func send_packet(pkt: String):
 		$Timer.start()
 
 func _on_web_mock_response():
-	# Web fallback: we don't know the best move, so we send a special signal
-	# instructing Main.gd to use its fallback logic (random legal move)
-	# We simulate "bestmove (none)" effectively to trigger fallback, 
-	# OR we add a specific signal for "web_fallback".
-	# Easier: Send a dummy bestmove that implies "I don't know"
-	# Main.gd handles "bestmove (none)" as Mate/Stalemate, which stops game. Not good.
-	# We need Main.gd to play a random move.
-	# Main.gd has 'apply_fallback_move'.
-	# Let's emit a special info packet? No.
-	# Let's emit "bestmove random" ? Main.gd might crash.
-	# I will handle "bestmove fallback" in Main.gd?
-	# Or better: make Main.gd detect Web platform and handle it.
-	
-	# Current Main.gd logic:
-	# if move == "(none)": ... -> fallback if win_condition==1 (Elimination)
-	# I can abuse this?
-	
-	# Let's just emit "bestmove (none)" and ensure Main.gd treats it as "Perform Fallback" on Web.
-	# Or better, just don't emit anything and let Main.gd timeout? 
-	# Main.gd timeout triggers fallback!
-	# "Engine still unresponsive... Using fallback..."
-	# So if I do NOTHING, Main.gd will timeout and play random move!
-	# Perfect.
-	# BUT timeout is movetime + 5s. That's slow.
-	# Let's adjust Main.gd timeout or simulate it.
-	pass
+	# Web fallback: we simulates "bestmove (none)" to trigger Main.gd's fallback logic
+	# Main.gd will see this and plays a random legal move if configured.
+	emit_signal("done", true, "bestmove (none)")
 
 
 

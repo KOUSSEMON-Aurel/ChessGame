@@ -511,7 +511,8 @@ func handle_state(event, msg = ""):
 						current_turn_id += 1
 						
 						# En mode Mat/Pat classique, on déclare la fin
-						if win_condition == 0:
+						# En mode Mat/Pat classique, on déclare la fin, sauf si on est sur le Web (Mock AI)
+						if win_condition == 0 and not engine.is_web:
 							if game_mode == 2: # AI vs AI
 								print("AI vs AI: Game Over. Restarting in 3 seconds...")
 								await get_tree().create_timer(3.0).timeout
@@ -519,7 +520,8 @@ func handle_state(event, msg = ""):
 								_on_Reset_button_down()
 							return
 						else:
-							print("Mode Élimination: L'IA est bloquée (Mat/Pat) mais il reste des pièces.")
+							# Web Fallback ou Mode Elimination
+							print("Web Mock AI / Mode Élimination: L'IA joue un coup au hasard.")
 							# Essayer de trouver un coup de secours (ignorant l'échec du Roi)
 							var side = "W" if white_next else "B"
 							var fallback_moves = board.get_fallback_moves(side)
