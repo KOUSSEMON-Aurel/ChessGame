@@ -17,11 +17,6 @@ import (
 )
 
 func main() {
-	f, _ := os.OpenFile("/tmp/iopiper.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if f != nil {
-		log.SetOutput(f)
-	}
-	log.Println("IOPiper started")
 	var clientAddr net.Addr
 
 	// Expect an executable path as 2nd arg
@@ -31,7 +26,7 @@ func main() {
 	}
 
 	// Set up UDP listner
-	pc, err := net.ListenPacket("udp", "127.0.0.1:7070")
+	pc, err := net.ListenPacket("udp", "0.0.0.0:7070")
 	if err != nil {
 		log.Println("Failed to listen:", err)
 		os.Exit(2)
@@ -66,14 +61,11 @@ func main() {
 	for {
 		n, addr, err := pc.ReadFrom(buffer)
 		if err == nil {
-			log.Printf("Received %d bytes from %v: %s", n, addr, string(buffer[:n]))
 			clientAddr = addr
 			if proc.Process == nil {
 				// Start the subprocess
-				log.Println("Starting subprocess")
 				err := proc.Start()
 				if err != nil {
-					log.Println("Failed to start subprocess:", err)
 					os.Exit(5)
 				}
 			}

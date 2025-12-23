@@ -24,5 +24,4 @@ func send_packet(pkt: String):
 func _process(_delta):
 	while udp.get_available_packet_count() > 0:
 		var pkt = udp.get_packet().get_string_from_utf8()
-		# print("DEBUG UDP: " + pkt)
 		emit_signal('got_packet', pkt)
