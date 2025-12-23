@@ -107,6 +107,7 @@ func start_engine():
 		
 	if is_web:
 		print("Web Engine: Using Mock AI (Random Moves) until WASM is ready.")
+		server_pid = 1 # Fake PID to satisfy Main.gd connection check
 		return { "started": true, "error": "" }
 
 	return start_udp_server()
