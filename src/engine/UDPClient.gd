@@ -3,26 +3,23 @@ extends Node
 signal got_packet
 
 var udp := PacketPeerUDP.new()
+var _connected = false
 
 func set_server(port = 7070):
 	udp.close()
-	var bind_err = udp.bind(0)
-	if bind_err != OK:
-		push_error("UDP bind failed: " + str(bind_err))
-	else:
-		print("UDP Client bound to local port: " + str(udp.get_local_port()))
-	
 	var err = udp.connect_to_host('127.0.0.1', port)
-	if err != OK:
-		push_error("UDP connect_to_host failed with error code: " + str(err))
-	else:
+	if err == OK:
+		_connected = true
 		print("UDP connect_to_host successful to 127.0.0.1:" + str(port))
+	else:
+		print("UDP Connect Error: ", err)
+		_connected = false
 
 func send_packet(pkt: String):
-	var err = udp.put_packet(pkt.to_utf8_buffer())
-	print("DEBUG: put_packet('", pkt, "') returned: ", err)
-	if err != OK:
-		push_error("UDP put_packet failed with error code: " + str(err))
+	if _connected:
+		var err = udp.put_packet(pkt.to_utf8_buffer())
+		if err != OK:
+			push_error("UDP put_packet failed: " + str(err))
 
 func _process(_delta):
 	while udp.get_available_packet_count() > 0:
