@@ -3,11 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cxtqh61xk041m"
-valid=false
+path="res://.godot/imported/thumbs_up.png-824c3fc51b36132c9e3804de7ad85839.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://assets/indicators/thumbs_up.png"
+dest_files=["res://.godot/imported/thumbs_up.png-824c3fc51b36132c9e3804de7ad85839.ctex"]
 
 [params]
 

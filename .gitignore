@@ -1,9 +1,24 @@
 # 
 # Godot-specific ignores
-src/.godot/
-.import/
+.godot/
+/android/
+/ios/
+
+# Heavy Binary Artifacts (GitHub limit < 100MB)
+*.apk
+*.aab
+*.zip
+*.tar.gz
+*.7z
+*.so
+*.aar
+*.exe
+*.bin
+src/android/plugins/StockfishEngine/libs/armeabi-v7a/libstockfish.so
+src/android/build/build/
+src/builds/
 export.cfg
-export_presets.cfg
+
 
 # Mono-specific ignores
 .mono/
@@ -39,4 +54,23 @@ Emoji/
 # OS specific
 .DS_Store
 Thumbs.db
-ssstik.io_@chessfxs_1765400769375.mp4
+
+# Gradle caches and build outputs
+.gradle/
+**/build/
+*.gradle.lockfile
+
+# Temp directories
+temp_*/
+inject_lib/
+
+# Android build artifacts
+src/android/build/assets/game.pck
+src/android/build/assets/*.gdc
+src/android/build/assets/*.remap
+src/android/plugins/*/gradle/
+src/android/plugins/*/gradlew
+*.keystore
+
+# Compiled scripts
+*.gdc

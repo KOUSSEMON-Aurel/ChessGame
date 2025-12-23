@@ -1,0 +1,11 @@
+[config]
+
+name="StockfishEngine"
+binary_type="local"
+binary="release/StockfishEngine-release.aar"
+
+[dependencies]
+
+local=["libs"]
+remote=[]
+custom_maven_repos=[]
