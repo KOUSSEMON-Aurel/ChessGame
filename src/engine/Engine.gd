@@ -174,6 +174,9 @@ func send_packet(pkt: String):
 		elif pkt.begins_with("go "):
 			# Trigger a fake response for move generation
 			get_tree().create_timer(1.0).timeout.connect(_on_web_mock_response)
+	else:
+		# Desktop (Linux/Windows): Send via UDP
+		$UDPClient.send_packet(pkt)
 
 func _on_web_mock_response():
 	# Web fallback: we simulates "bestmove (none)" to trigger Main.gd's fallback logic

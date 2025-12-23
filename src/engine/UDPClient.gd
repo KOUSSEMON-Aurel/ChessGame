@@ -9,6 +9,8 @@ func set_server(port = 7070):
 	var bind_err = udp.bind(0)
 	if bind_err != OK:
 		push_error("UDP bind failed: " + str(bind_err))
+	else:
+		print("UDP Client bound to local port: " + str(udp.get_local_port()))
 	
 	var err = udp.connect_to_host('127.0.0.1', port)
 	if err != OK:
@@ -18,6 +20,7 @@ func set_server(port = 7070):
 
 func send_packet(pkt: String):
 	var err = udp.put_packet(pkt.to_utf8_buffer())
+	print("DEBUG: put_packet('", pkt, "') returned: ", err)
 	if err != OK:
 		push_error("UDP put_packet failed with error code: " + str(err))
 
