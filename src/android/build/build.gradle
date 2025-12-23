@@ -74,10 +74,8 @@ dependencies {
     if (file(jar).exists()) {
         monoImplementation files(jar)
     }
-
-    // Manual Plugin Injection (Bypass Godot Editor)
-    implementation files('../plugins/StockfishEngine/release/StockfishEngine-release.aar')
 }
+
 
 android {
     compileSdkVersion versions.compileSdk
@@ -101,6 +99,7 @@ android {
         // The default ignore pattern for the 'assets' directory includes hidden files and directories which are used by Godot projects.
         aaptOptions {
             ignoreAssetsPattern "!.svn:!.git:!.gitignore:!.ds_store:!*.scc:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"
+            noCompress 'arsc'
         }
 
         ndk {
