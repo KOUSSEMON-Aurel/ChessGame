@@ -5,6 +5,8 @@ signal got_packet
 var udp := PacketPeerUDP.new()
 
 func set_server(port = 7070):
+	udp.close()
+	udp.bind(0) # IMPORTANT: Bind to random port to enable receiving
 	var err = udp.connect_to_host('127.0.0.1', port)
 	if err != OK:
 		push_error("UDP connect_to_host failed with error code: " + str(err))
