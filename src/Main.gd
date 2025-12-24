@@ -359,6 +359,12 @@ func _on_start_menu_confirmed(mode_opt, color_opt, win_opt):
 func start_game_logic(player_is_white = true):
 	# print("[MAIN] start_game_logic appelé, game_mode=", game_mode)
 	state = IDLE
+	# Pour les modes avec IA, s'assurer que le moteur est lancé
+	if game_mode == 0 or game_mode == 2:
+		if engine.server_pid == 0 and not engine.is_web:
+			# Moteur pas encore démarré, lancer la connexion d'abord
+			handle_state(CONNECT)
+			return
 	handle_state(NEW_GAME, player_is_white)
 
 func create_moves_popup():
@@ -431,7 +437,7 @@ func handle_state(event, msg = ""):
 						OS.alert("Erreur de connexion IA: " + str(status.error), "Erreur IA")
 				NEW_GAME:
 					if game_mode == 0 or game_mode == 2: # Vs AI or AI vs AI
-						if engine.server_pid > 0:
+						if engine.server_pid > 0 or engine.android_plugin:
 							engine.send_packet("ucinewgame")
 							engine.send_packet("isready")
 							state = STARTING

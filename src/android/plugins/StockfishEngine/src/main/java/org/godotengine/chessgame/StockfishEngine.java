@@ -1,5 +1,6 @@
 package org.godotengine.chessgame;
 
+import android.content.Context;
 import android.util.Log;
 import org.godotengine.godot.Godot;
 import org.godotengine.godot.plugin.GodotPlugin;
@@ -11,12 +12,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class StockfishEngine extends GodotPlugin {
     private static final String TAG = "StockfishEngine";
+    
     private Process stockfishProcess;
     private BufferedWriter writer;
     private BufferedReader reader;
@@ -44,22 +45,36 @@ public class StockfishEngine extends GodotPlugin {
         if (isRunning) return true;
 
         try {
-            // Locate the native library extracted by Android
-            // Android extracts JNI libs to user's nativeLibraryDir
-            // Library name is "libstockfish.so", so we look for that file or use the dir
+            // Get the native library directory where Android automatically extracts .so files
             String nativeLibDir = getActivity().getApplicationInfo().nativeLibraryDir;
             String stockfishPath = nativeLibDir + "/libstockfish.so";
             File stockfishBin = new File(stockfishPath);
+
+            Log.d(TAG, "Looking for Stockfish at: " + stockfishPath);
+            Log.d(TAG, "Native lib dir: " + nativeLibDir);
+            
+            // List all files in the native lib directory
+            File libDir = new File(nativeLibDir);
+            if (libDir.exists() && libDir.isDirectory()) {
+                String[] files = libDir.list();
+                if (files != null) {
+                    Log.d(TAG, "Files in native lib dir (" + files.length + "):");
+                    for (String f : files) {
+                        Log.d(TAG, "  - " + f);
+                    }
+                }
+            }
 
             if (!stockfishBin.exists()) {
                 Log.e(TAG, "Stockfish binary not found at: " + stockfishPath);
                 return false;
             }
 
+            Log.d(TAG, "Stockfish found! Size: " + stockfishBin.length() + ", canExecute: " + stockfishBin.canExecute());
             Log.d(TAG, "Starting Stockfish from: " + stockfishPath);
 
             ProcessBuilder pb = new ProcessBuilder(stockfishPath);
-            pb.directory(new File(nativeLibDir));
+            pb.redirectErrorStream(true);
             stockfishProcess = pb.start();
 
             writer = new BufferedWriter(new OutputStreamWriter(stockfishProcess.getOutputStream()));
@@ -72,9 +87,7 @@ public class StockfishEngine extends GodotPlugin {
                 try {
                     String line;
                     while ((line = reader.readLine()) != null) {
-                        // Emit signal to Godot on the main thread is NOT required for emitSignal,
-                        // but safer. emitSignal is thread-safe in Godot 4 Android Plugin API?
-                        // Usually yes.
+                        Log.d(TAG, "Output: " + line);
                         emitSignal("engine_output", line);
                     }
                 } catch (Exception e) {
@@ -85,9 +98,11 @@ public class StockfishEngine extends GodotPlugin {
             });
             outputThread.start();
 
+            Log.d(TAG, "Stockfish engine started successfully!");
             return true;
         } catch (Exception e) {
             Log.e(TAG, "Failed to start Stockfish", e);
+            e.printStackTrace();
             return false;
         }
     }
@@ -99,6 +114,7 @@ public class StockfishEngine extends GodotPlugin {
             return;
         }
         try {
+            Log.d(TAG, "Sending: " + command);
             writer.write(command);
             writer.write("\n");
             writer.flush();
